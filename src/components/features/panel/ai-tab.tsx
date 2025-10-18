@@ -56,7 +56,7 @@ const AITab = () => {
   return (
     <PanelLayout>
       <ScrollArea className="flex-1  w-[95%] border rounded-md">
-        <div className="px-4 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
+        <div className="px-4 h-96 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {aiConversation.map((msg, i) => (
             <div key={i} className={`w-96 flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
               <div

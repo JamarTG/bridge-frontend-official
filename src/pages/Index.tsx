@@ -41,7 +41,7 @@ const videoTileData = [
   }
 ]
 
-const startTimestamp = new Date("2025-10-17T01:00:00").getTime();
+const startTimestamp = new Date("2025-10-17T01:00:00").getTime().toString();
 
 
 const Index = () => {
