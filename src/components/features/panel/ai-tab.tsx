@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useScrollToBottom } from "@/hooks/useScrollToBottom";
-import { Computer, Send } from "lucide-react";
+import { Computer } from "lucide-react";
 import ChatButton from "./chat-button";
 import PanelLayout from "./layout";
 
