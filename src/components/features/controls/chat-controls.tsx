@@ -1,21 +1,20 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Hand, Mic, MicOff, Phone, Video, VideoOff } from "lucide-react";
-import { SheetPanel } from "../panel/panel-sheet";
 
 interface ChatControlsProps {
-  meetingStartTime: string;
+  meetingStartTime: number;
 }
 
 const ChatControls = ({ meetingStartTime }: ChatControlsProps) => {
   const [micOn, setMicOn] = useState(true);
   const [videoOn, setVideoOn] = useState(true);
   const [handRaised, setHandRaised] = useState(false);
-  const [elapsed, setElapsed] = useState(Date.now() - new Date(meetingStartTime).getTime());
+  const [elapsed, setElapsed] = useState(Date.now() - meetingStartTime);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setElapsed(Date.now() - new Date(meetingStartTime).getTime());
+      setElapsed(Date.now() - meetingStartTime);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -30,15 +29,12 @@ const ChatControls = ({ meetingStartTime }: ChatControlsProps) => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-16  border-border bg-card flex items-center justify-between px-8">
+    <div className="fixed bottom-0 left-0 right-0 h-16 border-t border-border bg-card flex items-center justify-between px-8">
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">{formatTime(elapsed)}</span>
       </div>
 
       <div className="flex items-center gap-3">
-      
-        <SheetPanel/>
-
         <Button size="lg" variant="outline" className="cursor-pointer rounded-full" onClick={() => setMicOn(!micOn)}>
           {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5 text-muted-foreground" />}
         </Button>
@@ -58,9 +54,9 @@ const ChatControls = ({ meetingStartTime }: ChatControlsProps) => {
         </Button>
 
         <Button size="lg" variant="destructive" className="flex justify-center gap-1 cursor-pointer rounded-full px-1 transition-transform duration-200 hover:scale-105 active:scale-95">
-          <Phone className="w-8 h-8 mr-1" />
+          <Phone className="w-5 h-5 mr-1" />
+          LEAVE
         </Button>
-
       </div>
     </div>
   );

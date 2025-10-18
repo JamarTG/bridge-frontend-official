@@ -14,7 +14,7 @@ export function SheetPanel() {
         <Button variant="outline" className="flex md:hidden "><PanelRight /></Button>
       </SheetTrigger>
       <SheetContent className="w-full pt-8">
-        <Panel isMobileVersion={true} />
+        <Panel isMobileVersion />
       </SheetContent>
     </Sheet>
   )

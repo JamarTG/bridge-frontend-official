@@ -7,7 +7,7 @@ interface PanelLayoutProps {
 
 const PanelLayout: React.FC<PanelLayoutProps> = ({ children, className }) => {
   return (
-    <div className={`${className || ""}`}>
+    <div className={`flex flex-col justify-start items-center ${className || ""}`}>
       {children}
     </div>
   );

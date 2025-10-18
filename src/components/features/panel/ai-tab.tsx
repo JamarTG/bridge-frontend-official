@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useScrollToBottom } from "@/hooks/useScrollToBottom";
-import { Send } from "lucide-react";
+import { Computer, Send } from "lucide-react";
 import ChatButton from "./chat-button";
 import PanelLayout from "./layout";
 
@@ -55,8 +55,8 @@ const AITab = () => {
 
   return (
     <PanelLayout>
-      <ScrollArea className="w-full flex-1 h-96 border rounded-md">
-        <div className="space-y-2 px-4 py-4 h-full">
+      <ScrollArea className="flex-1  w-[95%] border rounded-md">
+        <div className="px-4 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {aiConversation.map((msg, i) => (
             <div key={i} className={`w-96 flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
               <div
@@ -73,7 +73,7 @@ const AITab = () => {
         </div>
       </ScrollArea>
 
-      <ChatButton placeholder="Type a message..." Icon={Send} />
+      <ChatButton placeholder="Type a message..." Icon={Computer} />
     </PanelLayout>
   )
 }

@@ -9,7 +9,7 @@ interface ChatButtonProps {
 
 const ChatButton: React.FC<ChatButtonProps> = ({ Icon, placeholder }) => {
   return (
-    <div className="py-2 w-full">
+    <div className="py-2 w-[95%]">
       <div className="flex gap-2">
         <Input placeholder={placeholder} className="flex-1" />
         <Button variant="outline" className="cursor-pointer">

@@ -16,8 +16,8 @@ const ChatTab = () => {
 
   return (
     <PanelLayout>
-      <ScrollArea className="w-full flex-1 h-96 border rounded-md">
-        <div className="space-y-2 px-4 py-4">
+      <ScrollArea className="flex-1  w-[95%] border rounded-md">
+        <div className=" px-8 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {transcriptMessages.map((msg, index) => (
             <MessageItem
               key={index}

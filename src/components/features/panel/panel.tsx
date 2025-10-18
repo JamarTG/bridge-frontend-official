@@ -17,8 +17,8 @@ const Panel: React.FC<PanelProps> = ({ isMobileVersion = false }: { isMobileVers
 
   return (
     <div className={classes}>
-      <Tabs defaultValue="ai" className="h-full flex-1 flex flex-col ">
-        <TabsList className="mt-4 grid w-full grid-cols-4">
+      <Tabs defaultValue="ai" className="flex-1 flex flex-col ">
+        <TabsList className="mt-4 grid w-[95%] grid-cols-4">
           <TabsTrigger className="gap-1 cursor-pointer" value="chat">
             <MessageSquare className="w-4 h-4 mr-1" /> Chat
           </TabsTrigger>
@@ -33,7 +33,7 @@ const Panel: React.FC<PanelProps> = ({ isMobileVersion = false }: { isMobileVers
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 flex flex-col">
+        <div className= "flex-1 flex flex-col">
           <TabsContent value="chat" className="flex-1 h-full w-full">
             <ChatTab />
           </TabsContent>

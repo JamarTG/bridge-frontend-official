@@ -19,9 +19,8 @@ const documents = [
 const DocsTab = () => {
   return (
     <PanelLayout>
-
-      <ScrollArea className="w-full flex-1 h-96 border rounded-md">
-        <div className="space-y-2 px-4 py-4">
+      <ScrollArea className="flex-1  w-[95%] border rounded-md">
+        <div className="h-96 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {documents.map((doc, index) => (
             <Document 
               key={index}
@@ -33,7 +32,7 @@ const DocsTab = () => {
         </div>
       </ScrollArea>
 
-      <div className="w-full py-2 border-border">
+      <div className="py-2 w-[95%] border-border">
         <Button variant="outline" className="w-full cursor-pointer">
           <span className="mr-2">+</span>
           Attach Document

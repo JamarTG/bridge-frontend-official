@@ -54,7 +54,7 @@ const TranscriptTab = () => {
   return (
     <PanelLayout>
   
-      <ScrollArea className="w-full flex-1 h-96 border rounded-md">
+      <ScrollArea className="flex-1 h-96 w-[95%] border rounded-md">
         <div className="space-y-2 px-4 py-4">
           {transcriptMessages.map((msg, index) => (
             <MessageItem
