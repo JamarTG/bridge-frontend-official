@@ -6,6 +6,7 @@ import Signup from './pages/SignUp'
 import NotFound from './pages/NotFound'
 import Settings from './pages/Settings'
 import Dashboard from './pages/Dashboard'
+import { Toaster } from 'sonner';
 
 function App() {
   return (
@@ -18,6 +19,12 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Toaster 
+        position="top-right"
+        richColors
+        closeButton
+        duration={3000}
+      />
     </BrowserRouter>
   )
 }
