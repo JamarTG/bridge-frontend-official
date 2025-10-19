@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Hand, Mic, MicOff, Phone, Video, VideoOff, Monitor, MonitorOff, MicVocal } from "lucide-react";
 import { SheetPanel } from "../panel/panel-sheet";
@@ -18,7 +18,7 @@ interface ChatControlsProps {
 }
 
 const ChatControls = ({ 
-  meetingStartTime,
+  // meetingStartTime,
   isAudioMuted,
   isVideoMuted,
   isScreenSharing,
@@ -31,23 +31,23 @@ const ChatControls = ({
   toggleTranscription
 }: ChatControlsProps) => {
   const [handRaised, setHandRaised] = useState(false);
-  const [elapsed, setElapsed] = useState(Date.now() - new Date(meetingStartTime).getTime());
+  // const [elapsed, setElapsed] = useState(Date.now() - new Date(meetingStartTime).getTime());
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setElapsed(Date.now() - new Date(meetingStartTime).getTime());
-    }, 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setElapsed(Date.now() - new Date(meetingStartTime).getTime());
+  //   }, 1000);
 
-    return () => clearInterval(interval);
-  }, [meetingStartTime]);
+  //   return () => clearInterval(interval);
+  // }, [meetingStartTime]);
 
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const h = Math.floor(totalSeconds / 3600).toString().padStart(2, "0");
-    const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, "0");
-    const s = (totalSeconds % 60).toString().padStart(2, "0");
-    return `${h}:${m}:${s}`;
-  };
+  // const formatTime = (ms: number) => {
+  //   const totalSeconds = Math.floor(ms / 1000);
+  //   const h = Math.floor(totalSeconds / 3600).toString().padStart(2, "0");
+  //   const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, "0");
+  //   const s = (totalSeconds % 60).toString().padStart(2, "0");
+  //   return `${h}:${m}:${s}`;
+  // };
 
   return (
     <div className="fixed border-t bottom-0 left-0 right-0 h-16 border-border bg-card flex items-center justify-between px-8">

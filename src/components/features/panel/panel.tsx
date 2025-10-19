@@ -35,9 +35,9 @@ const Panel: React.FC<PanelProps> = ({ isMobileVersion = false }: { isMobileVers
 
         <div className= "flex-1 flex flex-col">
           <TabsContent value="chat" className="flex-1 h-full w-full">
-            <ChatTab messages={[]} messageInput={""} setMessageInput={function (value: string): void {
+            <ChatTab messages={[]} messageInput={""} setMessageInput={function (): void {
               throw new Error("Function not implemented.");
-            } } sendMessage={function (e: React.FormEvent): void {
+            } } sendMessage={function (): void {
               throw new Error("Function not implemented.");
             } } connected={false} />
           </TabsContent>

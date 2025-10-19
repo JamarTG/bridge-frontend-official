@@ -9,7 +9,7 @@ interface NavbarLayoutProps {
 
 const NavbarLayout = ({ children }: NavbarLayoutProps) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name: string; email: string }>({
+  const [_user, setUser] = useState<{ name: string; email: string }>({
     email:"demo",
     name:"demo"
   });

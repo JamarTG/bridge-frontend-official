@@ -1,6 +1,6 @@
 import type { Transcription } from "@/components/features/panel/transcript-tab";
 import { useState, useEffect, useRef } from "react";
-import type { Socket } from "socket.io-client";
+// import type { Socket } from "socket.io-client";
 // Map simple language codes to Google Cloud Speech language codes
 const languageCodeMap = {
   'en': 'en-US',

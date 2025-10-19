@@ -44,11 +44,11 @@ interface PeerMediaStatus extends PeerStatus {
   username: string;
 }
 
-interface Language {
-  code: string;
-  name: string;
-  flag: string;
-}
+// interface Language {
+//   code: string;
+//   name: string;
+//   flag: string;
+// }
 
 interface PendingProducer {
   producerId: string;
@@ -99,7 +99,7 @@ const Meeting = (): JSX.Element => {
 
   // Video refs
   const myVideoRef = useRef<HTMLVideoElement | null>(null);
-  const remoteContainerRef = useRef<HTMLDivElement | null>(null);
+  // const remoteContainerRef = useRef<HTMLDivElement | null>(null);
   const screenShareRef = useRef<HTMLVideoElement | null>(null);
   const myStreamRef = useRef<MediaStream | null>(null);
   const screenStreamRef = useRef<MediaStream | null>(null);
@@ -132,17 +132,17 @@ const Meeting = (): JSX.Element => {
   const [messageInput, setMessageInput] = useState<string>("");
 
   // User settings
-  const [username, setUsername] = useState<string>(
+  const [username, _setUsername] = useState<string>(
     localStorage.getItem("displayName") ||
       `User-${Math.floor(Math.random() * 1000)}`
   );
-  const [displayName, setDisplayName] = useState<string>(
+  const [displayName, _setDisplayName] = useState<string>(
     localStorage.getItem("displayName") || ""
   );
-  const [language, setLanguage] = useState<string>(
+  const [language, _setLanguage] = useState<string>(
     localStorage.getItem("language") || "en"
   );
-  const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [_showSettings, _setShowSettings] = useState<boolean>(false);
 
   // Streaming translation UI states
   const [streamingTranslation, setStreamingTranslation] = useState<string>("");
@@ -150,7 +150,7 @@ const Meeting = (): JSX.Element => {
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const transcriptionEndRef = useRef<HTMLDivElement | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("chat");
+  const [activeTab, _setActiveTab] = useState<string>("chat");
 
   const {
     isTranscribing,
@@ -159,20 +159,20 @@ const Meeting = (): JSX.Element => {
     toggleTranscription,
   } = useTranscription(emit as Socket["emit"], on as Socket["on"], off as Socket["off"], connected as Socket["connected"], roomId as string, language as string);
 
-  const languages: Language[] = [
-    { code: "en", name: "English", flag: "🇺🇸" },
-    { code: "es", name: "Spanish", flag: "🇪🇸" },
-    { code: "fr", name: "French", flag: "🇫🇷" },
-    { code: "de", name: "German", flag: "🇩🇪" },
-    { code: "it", name: "Italian", flag: "🇮🇹" },
-    { code: "pt", name: "Portuguese", flag: "🇵🇹" },
-    { code: "ru", name: "Russian", flag: "🇷🇺" },
-    { code: "ja", name: "Japanese", flag: "🇯🇵" },
-    { code: "zh", name: "Chinese", flag: "🇨🇳" },
-    { code: "ko", name: "Korean", flag: "🇰🇷" },
-    { code: "ar", name: "Arabic", flag: "🇸🇦" },
-    { code: "hi", name: "Hindi", flag: "🇮🇳" },
-  ];
+  // const languages: Language[] = [
+  //   { code: "en", name: "English", flag: "🇺🇸" },
+  //   { code: "es", name: "Spanish", flag: "🇪🇸" },
+  //   { code: "fr", name: "French", flag: "🇫🇷" },
+  //   { code: "de", name: "German", flag: "🇩🇪" },
+  //   { code: "it", name: "Italian", flag: "🇮🇹" },
+  //   { code: "pt", name: "Portuguese", flag: "🇵🇹" },
+  //   { code: "ru", name: "Russian", flag: "🇷🇺" },
+  //   { code: "ja", name: "Japanese", flag: "🇯🇵" },
+  //   { code: "zh", name: "Chinese", flag: "🇨🇳" },
+  //   { code: "ko", name: "Korean", flag: "🇰🇷" },
+  //   { code: "ar", name: "Arabic", flag: "🇸🇦" },
+  //   { code: "hi", name: "Hindi", flag: "🇮🇳" },
+  // ];
 
   // Update video tiles when peer statuses change
   useEffect(() => {
@@ -731,20 +731,20 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
     }
   };
 
-  const savePreferences = (): void => {
-    if (displayName.trim()) {
-      setUsername(displayName);
-      localStorage.setItem("displayName", displayName);
-    }
-    localStorage.setItem("language", language);
+  // const savePreferences = (): void => {
+  //   if (displayName.trim()) {
+  //     setUsername(displayName);
+  //     localStorage.setItem("displayName", displayName);
+  //   }
+  //   localStorage.setItem("language", language);
 
-    emit("update-preferences", {
-      displayName: displayName || username,
-      language: language,
-    });
+  //   emit("update-preferences", {
+  //     displayName: displayName || username,
+  //     language: language,
+  //   });
 
-    setShowSettings(false);
-  };
+  //   setShowSettings(false);
+  // };
 
   const toggleAudio = (): void => {
     if (!myStreamRef.current) return;
