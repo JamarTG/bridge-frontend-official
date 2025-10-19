@@ -8,50 +8,54 @@ import Dashboard from './pages/Dashboard'
 import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/protected-route'
+import { RoomIdProvider } from './context/RoomIDContext'
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+      <RoomIdProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/room/:uuid"
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/room/:uuid"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      <Toaster 
-        position="top-right"
-        richColors
-        closeButton
-        duration={3000}
-      />
-      </BrowserRouter>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            duration={3000}
+          />
+        </BrowserRouter>
+      </RoomIdProvider>
+
     </AuthProvider>
   )
 }
