@@ -9,13 +9,36 @@ export default function Signup({ prefillEmail = "", prefillName = "" }) {
   const [email, setEmail] = useState(prefillEmail);
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [language, setLanguage] = useState("en"); // Default to English
 
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    console.log({ name, email, username, phone });
-    // TODO: Send to backend
-    navigate("/");
+    console.log({ name, email, username, phone, password });
+    const response = await fetch("/api/profiles", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username,
+        email: email,
+        phone: phone,
+        password: password,
+        languagePreference: language,
+        //supabaseUserId: UUID.v4().toString(),
+        // Assuming password and supabaseUserId are handled elsewhere or not needed for this specific signup
+      }),
+    });
+
+    if (response.ok) {
+      console.log("User registered successfully!");
+      navigate("/login");
+    } else {
+      alert("Failed to register user:");
+    }
+
   };
 
   return (
@@ -67,6 +90,33 @@ export default function Signup({ prefillEmail = "", prefillName = "" }) {
               placeholder="Enter your phone number"
               onChange={(e) => setPhone(e.target.value)}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+           <div className="space-y-2">
+            <Label htmlFor="language">Preferred Language</Label>
+            <select
+              id="language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="w-full border rounded-md p-2"
+            >
+              <option value="en">English</option>
+              <option value="zh">Chinese (Mandarin)</option>
+              <option value="hi">Hindi</option>
+              <option value="es">Spanish</option>
+              <option value="ar">Arabic</option>
+            </select>
           </div>
 
           <Button onClick={handleSignup} className="w-full">

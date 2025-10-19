@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import { GoogleLogin } from "@react-oauth/google";
-import supabase from "@/util/supabase";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,22 +12,36 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    console.log("Login", { email, password });
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    }) as {
-      data: { user?: any; session?: { user?: any } };
-      error: any;
-    };
-    const user = data?.user ?? data?.session?.user;
-    if (error) {
-      console.error("Login error:", error);
-    } else {
-      console.log("Logged in user:", user);
-      navigate("/");
+  console.log("Login", { email, password });
+  try {
+    const response = await fetch("api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: email,
+        password: password,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("Login error:", result);
+      return;
     }
-  };
+
+    // Assuming result.token contains the basic auth token
+    localStorage.setItem("authToken", result.token);
+
+    console.log("Logged in, token stored.");
+    navigate("/");
+  } catch (error) {
+    console.error("Login error:", error);
+  }
+};
+  
 
 
   // const handleGoogleSuccess = async (credentialResponse: any) => {
