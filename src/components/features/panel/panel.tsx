@@ -3,7 +3,7 @@ import TranscriptTab from "./transcript-tab";
 import DocsTab from "./doc-tab";
 
 import ChatTab from "./chat-tab";
-import { Bot, FileText, MessageSquare } from "lucide-react";
+import { Bot, FileText, Folder, MessageSquare } from "lucide-react";
 import AITab from "./ai-tab";
 
 interface PanelProps {
@@ -17,19 +17,19 @@ const Panel: React.FC<PanelProps> = ({ isMobileVersion = false }: { isMobileVers
 
   return (
     <div className={classes}>
-      <Tabs defaultValue="ai" className="flex-1 flex flex-col ">
+      <Tabs defaultValue="ai" className="flex-1 flex flex-col justify-center">
         <TabsList className="mt-4 grid w-[95%] grid-cols-4">
           <TabsTrigger className="gap-1 cursor-pointer" value="chat">
-            <MessageSquare className="w-4 h-4 mr-1" /> Chat
+            <MessageSquare className="w-4 h-4 mr-1" /> <p className="hidden md:inline">Chat</p>
           </TabsTrigger>
           <TabsTrigger className="gap-1 cursor-pointer" value="ai">
-            <Bot className="w-4 h-4 mr-1" /> AI
+            <Bot className="w-4 h-4 mr-1" /> <p className="hidden md:inline">AI</p>
           </TabsTrigger>
           <TabsTrigger className="gap-1 cursor-pointer" value="docs">
-            <FileText className="w-4 h-4 mr-1" /> Docs
+            <Folder className="w-4 h-4 mr-1" /> <p className="hidden md:inline">Doc</p>
           </TabsTrigger>
           <TabsTrigger className="gap-1 cursor-pointer" value="transcript">
-            <FileText className="w-4 h-4 mr-1" /> Transcript
+            <FileText className="w-4 h-4 mr-1" /> <p className="hidden md:inline">Transcript</p>
           </TabsTrigger>
         </TabsList>
 

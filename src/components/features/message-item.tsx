@@ -1,19 +1,13 @@
-import { Badge } from "@/components/ui/badge";
 import { getInitials } from "../../lib/initial";
 
 interface MessageItemProps {
-  name: string, // probably should be formatted
-  time: string; // may require formatting
+  name: string, 
+  time: string;
   message: string;
   originalLangCode: string;
 }
 
-const userLangCode = "EN"
-
-const MessageItem: React.FC<MessageItemProps> = ({ name, time, message, originalLangCode }) => {
-
-  const isSameLangCode = userLangCode === originalLangCode;
-
+const MessageItem: React.FC<MessageItemProps> = ({ name, time, message }) => {
   return (
     <div className="flex gap-3">
 
@@ -24,8 +18,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ name, time, message, original
         <div className="flex items-center gap-2 mb-1">
           <span className="font-semibold text-sm">{name} </span>
           <span className="text-xs text-muted-foreground">{time}</span>
-          {!isSameLangCode &&
-            <Badge variant="outline" className="text-xs">Translated from ES</Badge>}
+         
         </div>
         <p className="text-sm leading-relaxed">
           {message}

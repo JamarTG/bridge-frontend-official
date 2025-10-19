@@ -31,11 +31,11 @@ const ChatControls = ({ meetingStartTime }: ChatControlsProps) => {
 
   return (
     <div className="fixed border-t bottom-0 left-0 right-0 h-16  border-border bg-card flex items-center justify-between px-8">
-      <div className="flex items-center gap-2">
+      <div className="hidden sm:flex items-center gap-2">
         <span className="text-sm text-muted-foreground">{formatTime(elapsed)}</span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="w-full flex items-center justify-center gap-3">
       
         <SheetPanel/>
 
