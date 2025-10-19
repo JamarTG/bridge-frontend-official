@@ -14,30 +14,24 @@ interface Message {
   isSystem: boolean;
 }
 
-const ChatTab = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+interface ChatTabProps {
+  messages: Message[];
+  onSendMessage: (message: string) => void;
+  connected: boolean;
+  username: string;
+}
+
+const ChatTab = ({ messages, onSendMessage, connected, username }: ChatTabProps) => {
   const [messageInput, setMessageInput] = useState("");
-  const [connected, _setConnected] = useState(true); // toggle based on your app’s connection status
 
   const messagesEndRef = useScrollToBottom([messages]);
 
-  const sendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     const text = messageInput.trim();
     if (!text || !connected) return;
 
-    const newMsg: Message = {
-      username: "You",
-      message: text,
-      timestamp: new Date().toISOString(),
-      socketId:
-        (typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? (crypto as any).randomUUID()
-          : Math.random().toString(36).slice(2)) as string,
-      isSystem: false,
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
+    onSendMessage(text);
     setMessageInput("");
   };
 
@@ -69,7 +63,7 @@ const ChatTab = () => {
         placeholder="Type a message..."
         value={messageInput}
         onChange={(e) => setMessageInput(e.target.value)}
-        onSubmit={sendMessage}
+        onSubmit={handleSendMessage}
         disabled={!connected}
       />
     </PanelLayout>

@@ -9,11 +9,14 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/protected-route'
 import { RoomIdProvider } from './context/RoomIDContext'
+import { ChatProvider } from './context/ChatContext'
 
 function App() {
   return (
     <AuthProvider>
+    
       <RoomIdProvider>
+        <ChatProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -54,6 +57,7 @@ function App() {
             duration={3000}
           />
         </BrowserRouter>
+        </ChatProvider>
       </RoomIdProvider>
 
     </AuthProvider>
