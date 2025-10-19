@@ -10,7 +10,6 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "../ui/button";
 import { LogOut, Globe } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 interface User {
