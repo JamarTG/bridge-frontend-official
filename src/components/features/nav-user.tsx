@@ -23,6 +23,7 @@ interface NavUserProps {
 }
 
 const NavUser: React.FC<NavUserProps> = ({ user }) => {
+  const tag = user.name.split(" ")[0][0] || "D"  + (user.name.split(" ")[1][0] || "U");
 
   const navigate = useNavigate();
   return (
@@ -31,7 +32,7 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
         <Button className="flex data-[state=open]:bg-gray-100 hover:bg-gray-100 active:bg-gray-200 px-2 py-6 items-center gap-2 bg-white">
           <div className="flex items-center gap-2 px-1 py-1 text-left text-sm">
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-white bg-black">CN</AvatarFallback>
+              <AvatarFallback className="text-white bg-black">{tag}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col flex-1 text-left">
               <span className="truncate text-base text-gray-700 font-medium">{user.name}</span>
