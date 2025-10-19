@@ -22,12 +22,12 @@ interface VideoTileProps {
   isLocal?: boolean;
 }
 
-const VideoTile: React.FC<VideoTileProps> = ({ 
-  name, 
-  hasHandRaised, 
-  isMicOff, 
+const VideoTile: React.FC<VideoTileProps> = ({
+  name,
+  hasHandRaised,
+  isMicOff,
   hasVideoOn,
-  cols, 
+  cols,
   aspectRatio,
   stream,
   isLocal = false
@@ -42,9 +42,9 @@ const VideoTile: React.FC<VideoTileProps> = ({
         console.error('Error playing video:', err);
       });
     }
-  }, [stream, hasVideoOn]); 
+  }, [stream, hasVideoOn]);
   return (
-    <div 
+    <div
       className="cursor-pointer flex flex-col bg-gray-900 overflow-hidden border border-gray-600 relative rounded-lg"
       style={{
         aspectRatio: aspectRatio,
@@ -52,7 +52,7 @@ const VideoTile: React.FC<VideoTileProps> = ({
         maxWidth: `calc((100% - ${(cols - 1) * 4}px) / ${cols})`,
       }}
     >
-      {/* Top icons */}
+    
       <div className="absolute top-1 left-1 right-1 flex justify-start items-start z-10 gap-1">
         {hasHandRaised && (
           <div className="text-gray-500 rounded-full bg-white flex items-center p-0.5">
@@ -66,7 +66,6 @@ const VideoTile: React.FC<VideoTileProps> = ({
         )}
       </div>
 
-      {/* Video element or placeholder */}
       {hasVideoOn && stream ? (
         <video
           ref={videoRef}
@@ -110,23 +109,23 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
   React.useEffect(() => {
     const calculateOptimalCols = () => {
       if (!containerRef.current) return;
-      
+
       const container = containerRef.current;
       const containerWidth = container.clientWidth;
       const containerHeight = container.clientHeight;
       const count = videoTileData.length;
-      
+
       if (count === 0) return;
-      
+
       let bestCols = Math.ceil(Math.sqrt(count));
       let bestScore = 0;
-      
+
       for (let testCols = 1; testCols <= count && testCols <= 6; testCols++) {
         const rows = Math.ceil(count / testCols);
         const tileWidth = containerWidth / testCols;
         const tileHeight = tileWidth / (16 / 9);
         const totalHeight = tileHeight * rows;
-        
+
         if (totalHeight <= containerHeight) {
           const score = totalHeight / containerHeight;
           if (score > bestScore) {
@@ -135,16 +134,16 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
           }
         }
       }
-      
+
       setCols(bestCols);
     };
-    
+
     calculateOptimalCols();
     window.addEventListener('resize', calculateOptimalCols);
     return () => window.removeEventListener('resize', calculateOptimalCols);
   }, [videoTileData.length]);
 
-  
+
 
   const aspectRatio = "16/9";
 

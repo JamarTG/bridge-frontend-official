@@ -93,7 +93,7 @@ const Meeting = (): JSX.Element => {
   const roomId: string = window.location.pathname.split('/').pop() || 'default-room';
   
   const { connected, emit, on, off } = useSocket(
-    import.meta.env.VITE_SOCKET_URL || "https://134.199.193.207:3000/",
+    import.meta.env.VITE_SOCKET_URL || "http://134.199.193.207:3000/",
     { withCredentials: false }
   );
 
@@ -902,7 +902,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
   return (
     <NavbarLayout>
       <div className="relative flex-1 flex overflow-hidden">
-        <div className="flex-1 flex flex-col p-1 gap-4">
+        <div className="h-full flex-1 flex flex-col p-1 gap-4 justify-center pb-16 items-baseline-last">
           <DynamicVideoGrid videoTileData={videoTileData} />
         </div>
 
