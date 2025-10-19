@@ -81,7 +81,7 @@ export default function Login() {
           <Button variant="outline" className="w-full">
             Sign in with Google
           </Button>
-          {/* <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => console.log("Login Failed")} /> */}
+       
         </div>
 
         <p className="text-sm text-center text-muted-foreground">
