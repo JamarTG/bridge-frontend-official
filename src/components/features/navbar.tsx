@@ -11,7 +11,6 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Navbar */}
       <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
         <div
           className="flex items-center gap-2 cursor-pointer"

@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
         '/api': {
-          target: 'https://despondent-monsoonal-lara.ngrok-free.dev' || 'http://localhost:8080',
+          target: 'http://134.199.193.207:8080',
           changeOrigin: true,
           secure: false,      
           ws: true,
@@ -23,6 +23,7 @@ export default defineConfig({
               console.log('proxy error', err);
             });
             proxy.on('proxyReq', (proxyReq, req, _res) => {
+              console.log(proxyReq)
               console.log('Sending Request to the Target:', req.method, req.url);
             });
             proxy.on('proxyRes', (proxyRes, req, _res) => {
