@@ -1,70 +1,115 @@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useScrollToBottom } from '@/hooks/useScrollToBottom';
-import MessageItem from '../message-item';
 import PanelLayout from './layout';
 
-const transcriptMessages = [
-  {
-    name: "Jamari McFarlane",
-    message: "We need to do the homework",
-    originalLanguageCode: "FR",
-    time: "2:34 PM"
-  },
-  {
-    originalLanguageCode: "FR",
-    name: "Jordan Campbell",
-    message: "Yes I agree",
-    time: "2:34 PM",
-  },
-  {
-    originalLanguageCode: "EN",
-    name: "Micheal Webb",
-    message: "No, we do not have time",
-    time: "2:35 PM"
-  },
-  {
-    originalLanguageCode: "FR",
-    name: "Jordan Campbell",
-    message: "Yes I agree",
-    time: "2:34 PM",
-  },
-  {
-    originalLanguageCode: "EN",
-    name: "Micheal Webb",
-    message: "No, we do not have time",
-    time: "2:35 PM"
-  },
-  {
-    originalLanguageCode: "FR",
-    name: "Jordan Campbell",
-    message: "Yes I agree",
-    time: "2:34 PM",
-  },
-  {
-    originalLanguageCode: "EN",
-    name: "Micheal Webb",
-    message: "No, we do not have time",
-    time: "2:35 PM"
-  },
-];
+interface Transcription {
+  socketId: string;
+  username: string;
+  transcript: string;
+  isFinal: boolean;
+  timestamp: number;
+  sourceLanguage?: string;
+  translatedText?: string | null;
+}
 
-const TranscriptTab = () => {
-  const messagesEndRef = useScrollToBottom(transcriptMessages);
+interface TranscriptTabProps {
+  transcriptions?: Transcription[];
+  language?: string;
+  streamingTranslation?: string;
+  currentTranslatingId?: string | null;
+}
+
+const TranscriptTab = ({ 
+  transcriptions = [], 
+  language = "en", 
+  streamingTranslation = "", 
+  currentTranslatingId = null 
+}: TranscriptTabProps) => {
+  const messagesEndRef = useScrollToBottom([transcriptions]);
+
+  console.log('TranscriptTab render:', {
+    transcriptionCount: transcriptions.length,
+    language,
+    streamingTranslation,
+    currentTranslatingId,
+    transcriptions
+  });
 
   return (
     <PanelLayout>
-  
       <ScrollArea className="flex-1 h-96 w-[95%] border rounded-md">
         <div className="space-y-2 px-4 py-4">
-          {transcriptMessages.map((msg, index) => (
-            <MessageItem
-              key={index}
-              name={msg.name}
-              time={msg.time}
-              message={msg.message}
-              originalLangCode={msg.originalLanguageCode}
-            />
-          ))}
+          {transcriptions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              <p>No transcriptions yet.</p>
+              <p className="mt-2 text-xs">Click "Start Transcription" in the controls to begin.</p>
+            </div>
+          ) : (
+            transcriptions.map((trans, idx) => {
+              const needsTranslation =
+                trans.sourceLanguage && trans.sourceLanguage !== language;
+              const translationId = `${trans.socketId}-${trans.timestamp}`;
+              const isCurrentlyTranslating = currentTranslatingId === translationId;
+              const hasStreamingTranslation =
+                isCurrentlyTranslating && streamingTranslation;
+
+              // Don't render foreign interim (non-final) text
+              if (!trans.isFinal && needsTranslation) {
+                console.log('Skipping interim foreign transcription:', trans);
+                return null;
+              }
+
+              // Determine what text to show
+              let displayText = trans.transcript;
+              let showTranslationIndicator = false;
+
+              if (needsTranslation) {
+                showTranslationIndicator = true;
+                if (trans.translatedText) {
+                  displayText = trans.translatedText;
+                } else if (hasStreamingTranslation) {
+                  displayText = streamingTranslation + "...";
+                } else {
+                  displayText = "Translating...";
+                }
+              }
+
+              return (
+                <div
+                  key={`${trans.socketId}-${trans.timestamp}-${idx}`}
+                  className={`${
+                    trans.isFinal ? 'bg-background' : 'bg-muted/50'
+                  } p-3 rounded-lg border ${
+                    trans.isFinal ? 'border-border' : 'border-muted'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-semibold text-sm text-foreground">
+                      {trans.username}
+                    </span>
+                    <div className="flex gap-1 items-center">
+                      {!trans.isFinal && (
+                        <span className="text-xs bg-muted px-2 py-0.5 rounded">
+                          interim
+                        </span>
+                      )}
+                      {showTranslationIndicator && trans.isFinal && (
+                        <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded">
+                          🌐 translated
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(trans.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground leading-relaxed">
+                    {displayText}
+                  </p>
+                </div>
+              );
+            })
+          )}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
