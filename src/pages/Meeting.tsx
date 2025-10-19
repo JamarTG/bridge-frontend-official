@@ -103,9 +103,12 @@ const Meeting = (): JSX.Element => {
     setRoomId(rId);
   }, [])
 
+      //import.meta.env.VITE_SOCKET_URL || "ws://134.199.193.207:3000/",
+
+
   const { user } = useAuth();
   const { connected, emit, on, off } = useSocket(
-    import.meta.env.VITE_SOCKET_URL || "ws://134.199.193.207:3000/",
+    import.meta.env.VITE_SOCKET_URL || "wss://134.199.193.207:3001/",
 
 
     { withCredentials: false }
