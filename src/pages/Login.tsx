@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import { GoogleLogin } from "@react-oauth/google";
+import supabase from "@/util/supabase";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,9 +14,22 @@ export default function Login() {
 
   const handleLogin = async () => {
     console.log("Login", { email, password });
-    // TODO: Backend login logic
-    navigate("/");
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    }) as {
+      data: { user?: any; session?: { user?: any } };
+      error: any;
+    };
+    const user = data?.user ?? data?.session?.user;
+    if (error) {
+      console.error("Login error:", error);
+    } else {
+      console.log("Logged in user:", user);
+      navigate("/");
+    }
   };
+
 
   // const handleGoogleSuccess = async (credentialResponse: any) => {
   //   console.log("Google login token:", credentialResponse.credential);
