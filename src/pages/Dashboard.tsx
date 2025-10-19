@@ -1,84 +1,105 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { format, isFuture, isToday } from "date-fns";
 import NavbarLayout from "@/components/features/navbar";
-import { Clock, Users, Video, Calendar as CalendarIcon, Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Plus, Copy, Check } from "lucide-react";
+import { format } from "date-fns";
 
 interface Meeting {
   id: number;
   title: string;
-  date: Date;
-  participants?: number;
-  duration?: number; // in minutes
+  inviteLink: string;
+  createdAt: Date;
 }
 
 const Dashboard = () => {
-  const [meetings, setMeetings] = useState<Meeting[]>([
-    {
-      id: 1,
-      title: "Team Sync",
-      date: new Date(),
-      participants: 5,
-      duration: 30
-    },
-    {
-      id: 2,
-      title: "Project Review",
-      date: new Date(Date.now() + 86400000), // tomorrow
-      participants: 8,
-      duration: 60
-    }
-  ]);
+  const [meeting, setMeeting] = useState<Meeting | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const startMeeting = () => {
+  const generateMeetingLink = () => {
     const newMeeting: Meeting = {
-      id: meetings.length + 1,
-      title: `Meeting ${meetings.length + 1}`,
-      date: new Date(),
-      participants: 0,
-      duration: 30
+      id: 1,
+      title: "Active Meeting",
+      inviteLink: `${window.location.origin}/room/${crypto.randomUUID()}`,
+      createdAt: new Date(),
     };
-    setMeetings([...meetings, newMeeting]);
+    setMeeting(newMeeting);
+  };
+
+  const copyLink = (link: string) => {
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <NavbarLayout>
-      <Card className="border-0">
+      <div className="flex h-[100vh] flex-col lg:flex-row justify-center items-center w-full px-4 py-6 gap-6">
+        <Card className="w-96 h-48 shadow-md border rounded-2xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl font-semibold">
+              {meeting ? "Create New Meeting" : "Start a Meeting"}
+            </CardTitle>
+            <CardDescription>
+              {meeting ? "This will replace your current active meeting." : "Generate an invite link to share instantly."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Button
+              onClick={generateMeetingLink}
+              variant={meeting ? "outline" : "default"}
+              className="flex items-center gap-2 w-32 sm:w-auto"
+            >
+              <Plus className="w-4 h-4" />
+              {meeting ? "New Meeting" : "Generate Link"}
+            </Button>
+          </CardContent>
+        </Card>
 
-        <CardContent className="flex flex-col gap-4">
-          <Button onClick={startMeeting} className="w-32"><Link to={"/call"} className="flex items-center gap-2">
-            <Plus />
-            <p>Start Meeting</p></Link>
-          </Button>
-          <Card>
-            <CardHeader>
-              <CardTitle>Upcoming Meetings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {meetings.map((m) => (
-                  <li key={m.id}>
-                    {m.title} - {format(m.date, "PPpp")}
-                  </li>
-                ))}
-              </ul>
+
+        <Card className="w-96 h-48 shadow-md border rounded-2xl flex justify-center items-center">
+          {meeting ? (
+            <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-4 w-full">
+              <div>
+                <p className="font-medium">{meeting.title}</p>
+                <p className="text-sm text-muted-foreground">
+                  Created {format(meeting.createdAt, "PPP p")}
+                </p>
+                <a
+                  href={meeting.inviteLink}
+                  className="text-xs text-blue-600 underline break-all"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {meeting.inviteLink.split("/")[4]}
+                </a>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => copyLink(meeting.inviteLink)}
+                className="flex items-center gap-1"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4" /> Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" /> Copy
+                  </>
+                )}
+              </Button>
             </CardContent>
-          </Card>
-        </CardContent>
-      </Card>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center px-4">
+              No active meeting. Generate a link to start.
+            </p>
+          )}
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Meeting Calendar</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Calendar mode="single" />
-        </CardContent>
-      </Card>
+
+      </div>
     </NavbarLayout>
   );
 };

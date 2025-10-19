@@ -18,7 +18,7 @@ const videoTileData = [
 
 const startTimestamp = "2025-10-17T01:00:00";
 
-const Index = () => (
+const Meeting = () => (
   <NavbarLayout>
     <div className="relative flex-1 flex overflow-hidden">
       <div className="flex-1 flex flex-col p-1 gap-4">
@@ -48,4 +48,4 @@ const Index = () => (
   </NavbarLayout>
 );
 
-export default Index;
+export default Meeting;

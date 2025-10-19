@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import { Users, SettingsIcon, LogOutIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import NavUser from "./nav-user";
 
 interface NavbarLayoutProps {
   children: ReactNode;
@@ -26,24 +24,12 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="gap-1 cursor-default">
-            <Users className="w-3" />
-            <span className="sm:text-md text-xs">3</span>
-          </Badge>
-          <Button
-            className="cursor-pointer"
-            variant="ghost"
-            onClick={() => navigate("/settings")}
-          >
-            <SettingsIcon className="w-4 h-4" /> Settings
-          </Button>
-          <Button
-            className="cursor-pointer"
-            variant="ghost"
-            onClick={() => navigate("/login")}
-          >
-            <LogOutIcon className="w-4 h-4" />
-          </Button>
+         
+          <NavUser user={{
+            name: "Jamari McFarlane",
+            email: "jamarimcfarlane12@gmail.com"
+          }} />
+        
         </div>
       </header>
 

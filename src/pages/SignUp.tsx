@@ -1,30 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Signup({ prefillEmail = "", prefillName = "" }) {
   const [name, setName] = useState(prefillName);
   const [email, setEmail] = useState(prefillEmail);
-  const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [language, setLanguage] = useState("en"); // Default to English
 
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    console.log({ name, email, username, phone, password });
+    console.log({ name, email, password });
     const response = await fetch("/api/profiles", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: username,
         email: email,
-        phone: phone,
+
         password: password,
         languagePreference: language,
         //supabaseUserId: UUID.v4().toString(),
@@ -72,25 +70,6 @@ export default function Signup({ prefillEmail = "", prefillName = "" }) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={username}
-              placeholder="Choose a username"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              value={phone}
-              placeholder="Enter your phone number"
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -103,20 +82,22 @@ export default function Signup({ prefillEmail = "", prefillName = "" }) {
             />
           </div>
 
-           <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="language">Preferred Language</Label>
-            <select
-              id="language"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full border rounded-md p-2"
-            >
-              <option value="en">English</option>
-              <option value="zh">Chinese (Mandarin)</option>
-              <option value="hi">Hindi</option>
-              <option value="es">Spanish</option>
-              <option value="ar">Arabic</option>
-            </select>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+              <SelectGroup>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="zh">Chinese (Mandarin)</SelectItem>
+                <SelectItem value="hi">Hindi</SelectItem>
+                <SelectItem value="es">Spanish</SelectItem>
+                <SelectItem value="ar">Arabic</SelectItem>
+              </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button onClick={handleSignup} className="w-full">
