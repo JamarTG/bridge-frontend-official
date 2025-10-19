@@ -26,7 +26,7 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
          
           <NavUser user={{
             name: "Jamari McFarlane",
-            email: "jamarimcfarlane12@gmail.com"
+            // email: "jamarimcfarlane12@gmail.com"
           }} />
         
         </div>

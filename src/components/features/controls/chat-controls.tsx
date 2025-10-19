@@ -52,10 +52,10 @@ const ChatControls = ({
   return (
     <div className="fixed border-t bottom-0 left-0 right-0 h-16 border-border bg-card flex items-center justify-between px-8">
       <div className="hidden sm:flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">{formatTime(elapsed)}</span>
-        {!connected && (
+        {/* <span className="text-sm text-muted-foreground">{formatTime(elapsed)}</span> */}
+        {/* {!connected && (
           <span className="text-xs text-destructive ml-2">● Disconnected</span>
-        )}
+        )} */}
         {isTranscribing && isSpeaking && (
           <span className="text-xs text-green-500 ml-2">● Speaking</span>
         )}
