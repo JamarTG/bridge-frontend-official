@@ -93,7 +93,7 @@ const Meeting = (): JSX.Element => {
   const roomId: string = window.location.pathname.split('/').pop() || 'default-room';
   
   const { connected, emit, on, off } = useSocket(
-    import.meta.env.VITE_SOCKET_URL || "https://7b87dcc465e9.ngrok-free.app",
+    import.meta.env.VITE_SOCKET_URL || "ws://134.199.193.207:3000/",
     { withCredentials: false }
   );
 
