@@ -33,7 +33,7 @@ const ChatTab = ({
   messages, 
   onSendMessage, 
   connected, 
-  username,
+  // username,
   emit,
   userLanguage = "en"
 }: ChatTabProps) => {

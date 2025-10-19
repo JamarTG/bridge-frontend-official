@@ -2,7 +2,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TranscriptTab from "./transcript-tab";
 import DocsTab from "./doc-tab";
 
-import ChatTab from "./chat-tab";
 import { Bot, FileText, Folder, MessageSquare } from "lucide-react";
 import AITab from "./ai-tab";
 import { useRoomId } from "@/context/RoomIDContext";
