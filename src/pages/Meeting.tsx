@@ -15,6 +15,7 @@ import DynamicVideoGrid from "@/components/features/video/video-grid";
 import { useSocket } from "@/hooks/useSocket";
 import { useTranscription } from "@/hooks/useTranscription";
 import { Socket } from "socket.io-client";
+import { useAuth } from "@/context/AuthContext";
 
 // Type definitions
 interface Message {
@@ -90,10 +91,13 @@ const startTimestamp = "2025-10-17T01:00:00";
 
 const Meeting = (): JSX.Element => {
   // Get roomId from URL or use default
+   //https://134.199.193.207:3000
   const roomId: string = window.location.pathname.split('/').pop() || 'default-room';
-  
+  const { user } = useAuth();
   const { connected, emit, on, off } = useSocket(
     import.meta.env.VITE_SOCKET_URL || "ws://134.199.193.207:3000/",
+   
+
     { withCredentials: false }
   );
 
@@ -133,13 +137,18 @@ const Meeting = (): JSX.Element => {
   const [messageInput, setMessageInput] = useState<string>("");
 
   // User settings
-  const [username, _setUsername] = useState<string>(
+  const [username] = useState<string>(
+    user?.name || 
     localStorage.getItem("displayName") ||
-      `User-${Math.floor(Math.random() * 1000)}`
+    `User-${Math.floor(Math.random() * 1000)}`
   );
-  const [displayName, _setDisplayName] = useState<string>(
-    localStorage.getItem("displayName") || ""
+
+  const [displayName] = useState<string>(
+    user?.name || 
+    localStorage.getItem("displayName") || 
+    ""
   );
+
   const [language, _setLanguage] = useState<string>(
     localStorage.getItem("language") || "en"
   );
@@ -206,17 +215,17 @@ const Meeting = (): JSX.Element => {
     setVideoTileData(tiles);
   }, [peerStatuses, isAudioMuted, isVideoMuted, isSpeaking, displayName, username, localStreamReady]);
   // Add this after the videoTileData update effect:
-useEffect(() => {
-  console.log('📹 Video tile data updated:', {
-    tileCount: videoTileData.length,
-    tiles: videoTileData.map(t => ({
-      name: t.name,
-      hasVideoOn: t.hasVideoOn,
-      hasStream: !!t.stream,
-      isLocal: t.isLocal
-    }))
-  });
-}, [videoTileData]);
+    useEffect(() => {
+      console.log('📹 Video tile data updated:', {
+        tileCount: videoTileData.length,
+        tiles: videoTileData.map(t => ({
+          name: t.name,
+          hasVideoOn: t.hasVideoOn,
+          hasStream: !!t.stream,
+          isLocal: t.isLocal
+        }))
+      });
+    }, [videoTileData]);
 
 // Add this in addTrackToRemoteStream:
 console.log('📹 Remote streams map size:', remoteStreamsRef.current.size);
@@ -429,11 +438,11 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
 
     const checkAndJoin = (): void => {
       if (myStreamRef.current) {
-        console.log("Joining room:", roomId);
+        console.log("Joining room:", roomId, "as", displayName || username);
         emit("join-room", {
           roomId,
           username,
-          displayName: displayName || username,
+          displayName: displayName || username, // Will use authenticated user's name
           language,
         });
       } else {
