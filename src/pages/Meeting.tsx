@@ -93,7 +93,7 @@ const Meeting = (): JSX.Element => {
   const roomId: string = window.location.pathname.split('/').pop() || 'default-room';
   
   const { connected, emit, on, off } = useSocket(
-    import.meta.env.VITE_SOCKET_URL || "http://localhost:3000/",
+    import.meta.env.VITE_SOCKET_URL || "http://134.199.193.207:3000/",
     { withCredentials: false }
   );
 
@@ -126,6 +126,7 @@ const Meeting = (): JSX.Element => {
   const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
   const [peerStatuses, setPeerStatuses] = useState<Record<string, PeerStatus>>({});
   const [videoTileData, setVideoTileData] = useState<VideoTileData[]>([]);
+  const [localStreamReady, setLocalStreamReady] = useState<boolean>(false);
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -190,19 +191,20 @@ const Meeting = (): JSX.Element => {
     });
 
     // Add local user at the beginning
-    tiles.unshift({
-      name: displayName || username,
-      hasHandRaised: false,
-      hasVideoOn: !isVideoMuted,
-      isSpeaking: isSpeaking,
-      isMicOff: isAudioMuted,
-      stream: myStreamRef.current,
-      isLocal: true,
-    });
+    if (localStreamReady && myStreamRef.current) {
+      tiles.unshift({
+        name: displayName || username,
+        hasHandRaised: false,
+        hasVideoOn: !isVideoMuted,
+        isSpeaking: isSpeaking,
+        isMicOff: isAudioMuted,
+        stream: myStreamRef.current,
+        isLocal: true,
+      });
+    }
 
     setVideoTileData(tiles);
-  }, [peerStatuses, isAudioMuted, isVideoMuted, isSpeaking, displayName, username]);
-
+  }, [peerStatuses, isAudioMuted, isVideoMuted, isSpeaking, displayName, username, localStreamReady]);
   // Add this after the videoTileData update effect:
 useEffect(() => {
   console.log('📹 Video tile data updated:', {
@@ -249,6 +251,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
           await myVideoRef.current.play().catch(() => {});
         }
         console.log("Local stream obtained");
+        setLocalStreamReady(true);
       } catch (err) {
         console.error("getUserMedia error:", err);
       }
