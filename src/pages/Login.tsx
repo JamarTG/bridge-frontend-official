@@ -3,59 +3,48 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "@/context/AuthContext"; // import context
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-  console.log("Login", { email, password });
-  try {
-    const response = await fetch("api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: email,
-        password: password,
-      }),
-    });
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: email, password }),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok) {
-      console.error("Login error:", result);
-      return;
+      if (!response.ok) {
+        console.error("Login failed:", result);
+        return;
+      }
+
+      const token = result.token?.split(" ")[1];
+      if (!token) {
+        console.error("No token in response");
+        return;
+      }
+
+      login(token); 
+      navigate("/");
+    } catch (err) {
+      console.error("Login error:", err);
     }
-
-    // Assuming result.token contains the basic auth token
-    localStorage.setItem("authToken", result.token.split(" ")[1]);
-
-    console.log("Logged in, token stored.");
-    navigate("/");
-  } catch (error) {
-    console.error("Login error:", error);
-  }
-};
-  
-
-
-  // const handleGoogleSuccess = async (credentialResponse: any) => {
-  //   console.log("Google login token:", credentialResponse.credential);
-  // };
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md p-8 space-y-6 rounded-2xl border bg-card shadow-sm">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-          <p className="text-sm text-muted-foreground">
-            Log in to your account
-          </p>
+          <p className="text-sm text-muted-foreground">Log in to your account</p>
         </div>
 
         <div className="space-y-4">
@@ -84,17 +73,6 @@ export default function Login() {
           <Button onClick={handleLogin} className="w-full">
             Log In
           </Button>
-        </div>
-
-        <div className="flex items-center justify-center text-sm text-muted-foreground">
-          <span className="mx-2">or</span>
-        </div>
-
-        <div className="space-y-3">
-          <Button variant="outline" className="w-full">
-            Sign in with Google
-          </Button>
-       
         </div>
 
         <p className="text-sm text-center text-muted-foreground">

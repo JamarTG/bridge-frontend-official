@@ -9,7 +9,7 @@ interface NavbarLayoutProps {
 
 const NavbarLayout = ({ children }: NavbarLayoutProps) => {
   const navigate = useNavigate();
-  const [_user, setUser] = useState<{ name: string; email: string }>({
+  const [user, setUser] = useState<{ name: string; email: string }>({
     email:"demo",
     name:"demo"
   });
@@ -46,19 +46,18 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
         <div
-          className="flex items-center gap-2 cursor-pointer"
+          className="h-10 flex rounded-md items-center gap-1 cursor-pointer"
           onClick={() => navigate("/")}
         >
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">B</span>
-          </div>
-          <h1 className="text-xl font-bold">Bridge</h1>
+        
+          <img src="/logo.webp" className="rounded-full" width={60}/>
+
         </div>
 
         <div className="flex items-center gap-2">
          
           <NavUser user={{
-            name: "Jamari McFarlane"
+            name:user.name
           }} />
         
         </div>

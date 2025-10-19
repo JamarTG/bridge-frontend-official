@@ -12,6 +12,7 @@ import {
 import { Button } from "../ui/button";
 import { UserCircle, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 interface User {
   name: string;
@@ -24,6 +25,7 @@ interface NavUserProps {
 }
 
 const NavUser: React.FC<NavUserProps> = ({ user }) => {
+  const { logout } = useAuth();
   const tag = user.name.split(" ")[0][0] || "D"  + (user.name.split(" ")[1][0] || "U");
 
   const navigate = useNavigate();
@@ -54,7 +56,7 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
           Settings
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={() => navigate('/login')} className="bg-white hover:bg-transparent hover:text-inherit">
+        <DropdownMenuItem onClick={logout} className="bg-white hover:bg-transparent hover:text-inherit">
           <LogOut className="mr-2" />
           Log out
         </DropdownMenuItem>
