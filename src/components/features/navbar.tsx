@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavUser from "./nav-user";
 
@@ -8,6 +9,38 @@ interface NavbarLayoutProps {
 
 const NavbarLayout = ({ children }: NavbarLayoutProps) => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<{ name: string; email: string }>({
+    email:"demo",
+    name:"demo"
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("authToken");
+      console.log("Fetching user profile...");
+      if (!token) return;
+
+      try {
+        const response = await fetch("/api/profiles/me", {
+          headers: {
+            "Authorization": `Basic ${token}`,
+          },
+        });
+        const result = await response.json();
+        if (response.ok) {
+          setUser({
+            name: `${result.firstName ?? ""} ${result.lastName ?? ""}`.trim(),
+            email: result.email,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -24,10 +57,7 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
 
         <div className="flex items-center gap-2">
          
-          <NavUser user={{
-            name: "Jamari McFarlane",
-            email: "jamarimcfarlane12@gmail.com"
-          }} />
+          <NavUser user={user} />
         
         </div>
       </header>

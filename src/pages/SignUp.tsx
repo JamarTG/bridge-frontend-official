@@ -22,6 +22,8 @@ export default function Signup({ prefillEmail = "", prefillName = "" }) {
       },
       body: JSON.stringify({
         email: email,
+        firstName: name.split(" ")[0] || "",
+        lastName: name.split(" ")[1] || "",
 
         password: password,
         languagePreference: language,

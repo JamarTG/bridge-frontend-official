@@ -33,7 +33,7 @@ export default function Login() {
     }
 
     // Assuming result.token contains the basic auth token
-    localStorage.setItem("authToken", result.token);
+    localStorage.setItem("authToken", result.token.split(" ")[1]);
 
     console.log("Logged in, token stored.");
     navigate("/");
