@@ -9,7 +9,7 @@ interface NavbarLayoutProps {
 
 const NavbarLayout = ({ children }: NavbarLayoutProps) => {
   const navigate = useNavigate();
-  const [_user, setUser] = useState<{ name: string; email: string }>({
+  const [user, setUser] = useState<{ name: string; email: string }>({
     email:"demo",
     name:"demo"
   });
@@ -57,7 +57,7 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
         <div className="flex items-center gap-2">
          
           <NavUser user={{
-            name: "Jamari McFarlane"
+            name:user.name
           }} />
         
         </div>
