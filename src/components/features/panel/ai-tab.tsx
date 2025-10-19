@@ -115,8 +115,8 @@ const AITab = ({ meetingId }: AITabProps) => {
       <ScrollArea className="flex-1 w-80 sm:w-[95%] border rounded-md">
         <div className="h-120 px-4 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {conversation.length === 0 ? (
-            <div className="w-full text-center py-8 text-muted-foreground text-sm">
-              Ask me anything about this meeting or uploaded documents!
+            <div className="flex justify-center items-center h-full w-full text-center py-8 text-muted-foreground text-sm">
+              <p>Ask me anything about this meeting </p>
             </div>
           ) : (
             conversation.map((msg, i) => (

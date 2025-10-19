@@ -1,3 +1,4 @@
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,7 @@ export default function Signup({ prefillEmail = "", prefillName = "" }) {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md p-8 space-y-6 rounded-2xl border bg-card shadow-sm">
+        <Logo />
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
           <p className="text-sm text-muted-foreground">

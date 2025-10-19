@@ -10,7 +10,6 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "../ui/button";
 import { LogOut, Globe } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 interface User {
@@ -68,7 +67,7 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
                   <img
                     src={currentLang.flag}
                     alt={currentLang.label}
-                    className="w-4 h-3 rounded-sm object-cover"
+                    className="w-4 h-3 rounded-xs object-cover"
                   />
                   {currentLang.label}
                 </>

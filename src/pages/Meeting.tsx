@@ -10,7 +10,7 @@ import ChatTab from "@/components/features/panel/chat-tab";
 import AITab from "@/components/features/panel/ai-tab";
 import DocsTab from "@/components/features/panel/doc-tab";
 import TranscriptTab from "@/components/features/panel/transcript-tab";
-import { Bot, FileText, MessageCircle } from "lucide-react";
+import { Bot, FileText, Folder, MessageCircle } from "lucide-react";
 import DynamicVideoGrid from "@/components/features/video/video-grid";
 import { useSocket } from "@/hooks/useSocket";
 import { useTranscription } from "@/hooks/useTranscription";
@@ -216,7 +216,6 @@ const Meeting = (): JSX.Element => {
       window.removeEventListener('languageChanged', handleLanguageChange as EventListener);
     };
   }, [connected, emit]);
-  // Update video tiles when peer statuses change
   useEffect(() => {
     const tiles: VideoTileData[] = Array.from(remoteStreamsRef.current.entries()).map(([socketId, stream]) => {
       const status = peerMediaStatusRef.current.get(socketId);
@@ -231,7 +230,6 @@ const Meeting = (): JSX.Element => {
       };
     });
 
-    // Add local user at the beginning
     if (localStreamReady && myStreamRef.current) {
       tiles.unshift({
         name: displayName || username,
@@ -273,7 +271,6 @@ const Meeting = (): JSX.Element => {
     }
   }, [transcriptions, activeTab]);
 
-  // Get local media stream
   useEffect(() => {
     let stopped = false;
     (async () => {
@@ -302,7 +299,6 @@ const Meeting = (): JSX.Element => {
     };
   }, []);
 
-  // Socket event handlers
   useEffect(() => {
     if (!connected) return;
 
@@ -467,21 +463,22 @@ const Meeting = (): JSX.Element => {
     on("peer-media-status", handlePeerMediaStatus);
     on("existing-peer-statuses", handleExistingPeerStatuses);
 
-    const checkAndJoin = (): void => {
-      if (myStreamRef.current) {
-        console.log("Joining room:", rId, "as", displayName || username);
-        emit("join-room", {
-          roomId: rId,
-          username,
-          displayName: displayName || username, // Will use authenticated user's name
-          language,
-        });
-      } else {
-        console.log("Waiting for local stream before joining...");
-        setTimeout(checkAndJoin, 100);
-      }
-    };
-    checkAndJoin();
+   
+  const checkAndJoin = (): void => {
+    if (myStreamRef.current) {
+      console.log("Joining room:", rId, "as", displayName || username);
+      emit("join-room", {
+        roomId: rId,
+        username,
+        displayName: displayName || username,
+        language,
+      });
+    } else {
+      console.log("Waiting for local stream before joining...");
+      setTimeout(checkAndJoin, 100);
+    }
+  };
+  checkAndJoin();
 
     return () => {
       console.log("Cleaning up event handlers");
@@ -494,7 +491,7 @@ const Meeting = (): JSX.Element => {
       off("peer-media-status", handlePeerMediaStatus);
       off("existing-peer-statuses", handleExistingPeerStatuses);
     };
-  }, [connected, rId, username, displayName, language]);
+  }, [connected, rId, username, displayName]);
 
   const createSendTransport = async (): Promise<Transport> => {
     console.log("Creating send transport...");
@@ -762,7 +759,7 @@ const Meeting = (): JSX.Element => {
     });
   };
 
- 
+
   const sendChatMessage = (message: string): void => {
     if (!connected || !message.trim()) return;
 
@@ -941,7 +938,7 @@ const Meeting = (): JSX.Element => {
   return (
     <NavbarLayout>
       <div className="relative flex-1 flex overflow-hidden">
-        <div className="h-full flex-1 flex flex-col p-1 gap-4 justify-center pb-16 items-baseline-last">
+        <div className="flex justify-center items-center w-screen md:w-[70vw] h-[80vh] md:h-[80vh]" >
           <DynamicVideoGrid videoTileData={videoTileData} />
         </div>
 
@@ -950,19 +947,21 @@ const Meeting = (): JSX.Element => {
             <TabsList className="mx-4 mt-4 grid w-[calc(100%-2rem)] grid-cols-4">
               <TabsTrigger value="chat"><MessageCircle />Chat</TabsTrigger>
               <TabsTrigger value="ai"><Bot /> AI</TabsTrigger>
-              <TabsTrigger value="docs"><FileText /> Docs</TabsTrigger>
-              <TabsTrigger value="transcript">Transcript</TabsTrigger>
+              <TabsTrigger value="docs"><Folder /> Docs</TabsTrigger>
+              <TabsTrigger value="transcript"><FileText></FileText>Transcript</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 flex flex-col">
               <TabsContent value="chat">
               <TabsContent value="chat">
-              <ChatTab
-                messages={messages}
-                onSendMessage={sendChatMessage}
-                connected={connected}
-                username={displayName || username}
-              />
+               <ChatTab
+                  messages={messages}
+                  onSendMessage={sendChatMessage}
+                  connected={connected}
+                  username={displayName || username}
+                  emit={emit}  // Pass emit function directly
+                  userLanguage={language} // Pass user's language preference
+                />
             </TabsContent>
               </TabsContent>
               <TabsContent value="ai"><AITab meetingId={rId} /></TabsContent>

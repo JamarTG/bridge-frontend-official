@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Hand, Mic, MicOff, Phone, Video, VideoOff, Monitor, MonitorOff, MicVocal } from "lucide-react";
+import { Hand, Mic, MicOff, Phone, Video, VideoOff, MicVocal } from "lucide-react";
 import { SheetPanel } from "../panel/panel-sheet";
 
 interface ChatControlsProps {
@@ -21,13 +21,13 @@ const ChatControls = ({
   // meetingStartTime,
   isAudioMuted,
   isVideoMuted,
-  isScreenSharing,
+  // isScreenSharing,
   isTranscribing,
   isSpeaking,
   connected,
   toggleAudio,
   toggleVideo,
-  toggleScreenShare,
+  // toggleScreenShare,
   toggleTranscription
 }: ChatControlsProps) => {
   const [handRaised, setHandRaised] = useState(false);
@@ -93,7 +93,7 @@ const ChatControls = ({
           )}
         </Button>
 
-        <Button 
+        {/* <Button 
           size="lg" 
           variant="outline" 
           className={`cursor-pointer rounded-full ${isScreenSharing ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
@@ -105,7 +105,7 @@ const ChatControls = ({
           ) : (
             <Monitor className="w-5 h-5" />
           )}
-        </Button>
+        </Button> */}
 
         <Button
           size="lg"

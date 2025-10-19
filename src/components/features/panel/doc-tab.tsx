@@ -5,6 +5,7 @@ import { Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Document from "./document";
 import PanelLayout from "./layout";
+import { useRoomId } from "@/context/RoomIDContext";
 
 interface DocumentItem {
   title: string;
@@ -35,7 +36,7 @@ const DocsTab = ({ meetingId }: DocsTabProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentMeetingId = meetingId || window.location.pathname.split('/').pop() || 'default-room';
-
+  const {roomId} = useRoomId();
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -123,9 +124,13 @@ const DocsTab = ({ meetingId }: DocsTabProps) => {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      if(!roomId) {
+        return;
+      }
 
-      const response = await fetch(`https://r5m2o3uxbfo3sr-8010.proxy.runpod.net/api/serve/upload/${currentMeetingId}`, {
+      formData.append('file', file);
+      formData.append('meeting_id', roomId);
+      const response = await fetch(`https://r5m2o3uxbfo3sr-8010.proxy.runpod.net/api/embedding/document`, {
         method: 'POST',
         body: formData,
       });
@@ -195,13 +200,13 @@ const DocsTab = ({ meetingId }: DocsTabProps) => {
       <ScrollArea className="flex-1 w-80 sm:w-[95%] border rounded-md">
         <div className="h-120 xs:w-72 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {isLoading ? (
-            <div className="w-full text-center py-8 text-muted-foreground text-sm">
+            <div className="flex flex-col justify-center items-centerh-full w-full text-center py-8 text-muted-foreground text-sm">
               <Loader2 className="mx-auto h-6 w-6 animate-spin mb-2" />
               Loading documents...
             </div>
           ) : documents.length === 0 ? (
-            <div className="w-full text-center py-8 text-muted-foreground text-sm">
-              No documents yet. Upload a document to get started.
+            <div className="h-full flex justify-center items-center w-full text-center py-8 text-muted-foreground text-sm">
+              No documents yet. Upload one to get started.
             </div>
           ) : (
             documents.map((doc, index) => (

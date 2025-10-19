@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import NavUser from "./nav-user";
 import { Skeleton } from "@/components/ui/skeleton";
+import Logo from "../logo";
 
 interface NavbarLayoutProps {
   children: ReactNode;
@@ -46,27 +47,7 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
-        <div className="flex justify-center items-center gap-1">
-          <svg
-            viewBox="0 0 24 24"
-            width={35}
-            xmlns="http://www.w3.org/2000/svg"
-            fill="#000000"
-          >
-            <defs>
-              <style>{`.cls-1{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}`}</style>
-            </defs>
-            <g id="ic-places-bridge">
-              <line className="cls-1" x1="2" y1="15" x2="22" y2="15" />
-              <path className="cls-1" d="M4,18V6H4A9.39,9.39,0,0,0,20,6h0V18" />
-              <line className="cls-1" x1="8" y1="9.59" x2="8" y2="15" />
-              <line className="cls-1" x1="16" y1="9.59" x2="16" y2="15" />
-              <line className="cls-1" x1="12" y1="10.47" x2="12" y2="15" />
-            </g>
-          </svg>
-          <h2 className="font-bold text-xl">Bridge</h2>
-        </div>
-
+      <Logo />
         <div className="flex items-center gap-2">
           {loading ? (
             <div className="flex items-center gap-2">

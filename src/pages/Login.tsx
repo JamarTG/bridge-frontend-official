@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext"; // import context
+import Logo from "@/components/logo";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -40,48 +41,54 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="w-full max-w-md p-8 space-y-6 rounded-2xl border bg-card shadow-sm">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-          <p className="text-sm text-muted-foreground">Log in to your account</p>
-        </div>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-muted/30 to-background">
+  <div className="w-full max-w-md p-8 space-y-6 rounded-2xl border bg-card shadow-lg backdrop-blur-sm">
+    <Logo />
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              placeholder="you@example.com"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              placeholder="••••••••"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          <Button onClick={handleLogin} className="w-full">
-            Log In
-          </Button>
-        </div>
-
-        <p className="text-sm text-center text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-primary hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </div>
+    <div className="text-center space-y-2">
+      <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+      <p className="text-sm text-muted-foreground">
+        Log in to your Bridge account
+      </p>
     </div>
+
+    {/* Form */}
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          placeholder="you@example.com"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          placeholder="••••••••"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      <Button onClick={handleLogin} className="w-full">
+        Log In
+      </Button>
+    </div>
+
+    <p className="text-sm text-center text-muted-foreground">
+      Don't have an account?{" "}
+      <Link to="/signup" className="text-primary hover:underline">
+        Sign up
+      </Link>
+    </p>
+  </div>
+</div>
+
   );
 }

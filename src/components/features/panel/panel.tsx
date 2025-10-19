@@ -30,6 +30,7 @@ const Panel: React.FC<PanelProps> = ({ isMobileVersion = false }: { isMobileVers
           <TabsTrigger className="gap-1 cursor-pointer" value="docs">
             <Folder className="w-4 h-4 mr-1" /> <p className="hidden md:inline">Doc</p>
           </TabsTrigger>
+
           <TabsTrigger className="gap-1 cursor-pointer" value="transcript">
             <FileText className="w-4 h-4 mr-1" /> <p className="hidden md:inline">Transcript</p>
           </TabsTrigger>
