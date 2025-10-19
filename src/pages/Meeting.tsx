@@ -108,7 +108,7 @@ const Meeting = (): JSX.Element => {
 
   const { user } = useAuth();
   const { connected, emit, on, off } = useSocket(
-    import.meta.env.VITE_SOCKET_URL || "wss://134.199.193.207:3001/",
+    import.meta.env.VITE_SOCKET_URL || "http://localhost:3000/",
     // wss://134.199.193.207:3001
     { withCredentials: false }
   );
