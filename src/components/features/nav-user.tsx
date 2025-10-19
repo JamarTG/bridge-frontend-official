@@ -63,7 +63,7 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
                   <img
                     src={currentLang.flag}
                     alt={currentLang.label}
-                    className="w-4 h-3 rounded-sm object-cover"
+                    className="w-4 h-3 rounded-xs object-cover"
                   />
                   {currentLang.label}
                 </>
