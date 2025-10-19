@@ -31,7 +31,6 @@ const LANGUAGES = [
 
 const NavUser: React.FC<NavUserProps> = ({ user }) => {
   const { logout } = useAuth();
-  const navigate = useNavigate();
 
   const tag =
     (user.name.split(" ")[0] && user.name.split(" ")[0][0]) ||
