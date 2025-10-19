@@ -200,13 +200,13 @@ const DocsTab = ({ meetingId }: DocsTabProps) => {
       <ScrollArea className="flex-1 w-80 sm:w-[95%] border rounded-md">
         <div className="h-120 xs:w-72 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {isLoading ? (
-            <div className="w-full text-center py-8 text-muted-foreground text-sm">
+            <div className="flex flex-col justify-center items-centerh-full w-full text-center py-8 text-muted-foreground text-sm">
               <Loader2 className="mx-auto h-6 w-6 animate-spin mb-2" />
               Loading documents...
             </div>
           ) : documents.length === 0 ? (
-            <div className="w-full text-center py-8 text-muted-foreground text-sm">
-              No documents yet. Upload a document to get started.
+            <div className="h-full flex justify-center items-center w-full text-center py-8 text-muted-foreground text-sm">
+              No documents yet. Upload one to get started.
             </div>
           ) : (
             documents.map((doc, index) => (
