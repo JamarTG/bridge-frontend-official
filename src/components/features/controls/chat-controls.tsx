@@ -119,7 +119,7 @@ const ChatControls = ({
           disabled={!connected}
           title={isTranscribing ? "Stop transcription" : "Start transcription"}
         >
-          <MicVocal className={`w-5 h-5 ${isTranscribing ? 'text-black' : 'text-green-500'}`} />
+          <MicVocal className={`w-5 h-5 ${isTranscribing ? 'text-green-500' : 'text-black'}`} />
           {isTranscribing && isSpeaking && (
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
           )}

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "../ui/button";
-import { LogOut, Globe } from "lucide-react";
+import { LogOut} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 interface User {
@@ -49,14 +49,14 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="flex data-[state=open]:bg-gray-100 hover:bg-gray-100 active:bg-gray-200 px-2 py-6 items-center gap-2 bg-white">
+        <Button className="flex data-[state=open]:bg-gray-100 hover:bg-gray-100 active:bg-gray-200  py-6 items-center gap-2 bg-white">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="text-white bg-black">{tag}</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col flex-1 text-left">
+          <div className="min-w-22 flex flex-col justify-center items-start w-fit flex-1 text-left">
             <span className="truncate text-base text-gray-700 font-medium">{user.name}</span>
             <span className="text-xs text-gray-500 flex items-center gap-1">
-              <Globe className="w-3 h-3" />
+            
               {currentLang && (
                 <>
                   <img
@@ -80,7 +80,7 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
           <DropdownMenuItem
             key={l.code}
             onClick={() => setLanguage(l.code)}
-            className={`flex items-center gap-2 text-sm ${
+            className={` flex items-center gap-2 text-sm ${
               language === l.code ? "bg-gray-100 font-medium" : ""
             }`}
           >

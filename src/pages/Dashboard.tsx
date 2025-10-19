@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import NavbarLayout from "@/components/features/navbar";
 import { Plus, Copy, Check } from "lucide-react";
-import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Meeting {
@@ -90,14 +89,9 @@ const Dashboard = () => {
               disabled={loading}
               className="flex items-center gap-2 w-32 sm:w-auto"
             >
-              {loading ? (
-                <Skeleton className="w-16 h-4 rounded" />
-              ) : (
-                <>
-                  <Plus className="w-4 h-4" />
-                  {meeting ? "New Meeting" : "Generate Link"}
-                </>
-              )}
+              <Plus className="w-4 h-4" />
+              {meeting ? "New Meeting" : "Generate Link"}
+
             </Button>
           </CardContent>
         </Card>
@@ -113,10 +107,10 @@ const Dashboard = () => {
           ) : meeting ? (
             <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-4 w-full">
               <div>
-                <p className="font-medium">{meeting.title}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className=" text-xl font-normal">{meeting.title}</p>
+                {/* <p className="text-sm text-muted-foreground">
                   Created {format(meeting.createdAt, "PPP p")}
-                </p>
+                </p> */}
                 <a
                   href={meeting.inviteLink}
                   className="text-xs text-blue-600 underline break-all"

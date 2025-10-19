@@ -40,7 +40,7 @@ const TranscriptTab = ({
       <ScrollArea className="flex-1 w-80 sm:w-[95%] border rounded-md">
         <div className="h-120 space-y-2 px-4 py-4">
           {transcriptions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground text-sm">
+            <div className="h-full flex flex-col justify-center items-center text-center py-8 text-muted-foreground text-sm">
               <p>No transcriptions yet.</p>
               <p className="mt-2 text-xs">Click "Start Transcription" in the controls to begin.</p>
             </div>
