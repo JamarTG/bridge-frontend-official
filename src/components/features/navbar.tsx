@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import NavUser from "./nav-user";
 
 interface NavbarLayoutProps {

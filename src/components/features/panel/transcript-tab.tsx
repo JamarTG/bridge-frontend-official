@@ -37,8 +37,8 @@ const TranscriptTab = ({
 
   return (
     <PanelLayout>
-      <ScrollArea className="flex-1 h-96 w-[95%] border rounded-md">
-        <div className="space-y-2 px-4 py-4">
+      <ScrollArea className="flex-1 w-80 sm:w-[95%] border rounded-md">
+        <div className="h-120 space-y-2 px-4 py-4">
           {transcriptions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-sm">
               <p>No transcriptions yet.</p>

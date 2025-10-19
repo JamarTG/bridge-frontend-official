@@ -17,6 +17,7 @@ interface VideoTileProps {
   hasVideoOn: boolean;
   isSpeaking: boolean;
   cols: number;
+  rows: number;
   aspectRatio: string;
   stream?: MediaStream | null;
   isLocal?: boolean;
@@ -28,6 +29,7 @@ const VideoTile: React.FC<VideoTileProps> = ({
   isMicOff,
   hasVideoOn,
   cols,
+  // rows,
   aspectRatio,
   stream,
   isLocal = false
@@ -43,6 +45,7 @@ const VideoTile: React.FC<VideoTileProps> = ({
       });
     }
   }, [stream, hasVideoOn]);
+
   return (
     <div
       className="cursor-pointer flex flex-col bg-gray-900 overflow-hidden border border-gray-600 relative rounded-lg"
@@ -50,9 +53,9 @@ const VideoTile: React.FC<VideoTileProps> = ({
         aspectRatio: aspectRatio,
         flex: `1 1 calc((100% - ${(cols - 1) * 4}px) / ${cols})`,
         maxWidth: `calc((100% - ${(cols - 1) * 4}px) / ${cols})`,
+        minWidth: 0,
       }}
     >
-    
       <div className="absolute top-1 left-1 right-1 flex justify-start items-start z-10 gap-1">
         {hasHandRaised && (
           <div className="text-gray-500 rounded-full bg-white flex items-center p-0.5">
@@ -82,7 +85,6 @@ const VideoTile: React.FC<VideoTileProps> = ({
         </div>
       )}
 
-      {/* Bottom name bar */}
       <div className="absolute bottom-0 left-0 right-0 py-1 px-2 bg-black/70 z-10">
         <p className="text-xs text-white font-medium truncate">{name}</p>
       </div>
@@ -100,77 +102,82 @@ interface VideoGridProps {
     stream?: MediaStream | null;
     isLocal?: boolean;
   }>;
+  aspectRatio?: "1/1" | "4/3" | "16/9";
 }
 
-const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const [cols, setCols] = React.useState(Math.ceil(Math.sqrt(videoTileData.length)));
+const DynamicVideoGrid: React.FC<VideoGridProps> = ({ 
+  videoTileData = [],
+  aspectRatio = "16/9" 
+}) => {
+  const videoSpaceRef = useRef<HTMLDivElement>(null);
+  const [maxCells, setMaxCells] = React.useState(49);
 
+  // Calculate maximum cells that can fit
   React.useEffect(() => {
-    const calculateOptimalCols = () => {
-      if (!containerRef.current) return;
+    const calculateMaxCells = () => {
+      if (!videoSpaceRef.current || !videoTileData) return;
 
-      const container = containerRef.current;
-      const containerWidth = container.clientWidth;
-      const containerHeight = container.clientHeight;
-      const count = videoTileData.length;
+      const { clientHeight, clientWidth } = videoSpaceRef.current;
 
-      if (count === 0) return;
+      const minTileHeight = aspectRatio === "1/1" ? 160 : aspectRatio === "4/3" ? 120 : 90;
+      const minTileWidth = 160;
 
-      let bestCols = Math.ceil(Math.sqrt(count));
-      let bestScore = 0;
+      const maxRows = Math.floor(clientHeight / minTileHeight);
+      const maxCols = Math.floor(clientWidth / minTileWidth);
 
-      for (let testCols = 1; testCols <= count && testCols <= 6; testCols++) {
-        const rows = Math.ceil(count / testCols);
-        const tileWidth = containerWidth / testCols;
-        const tileHeight = tileWidth / (16 / 9);
-        const totalHeight = tileHeight * rows;
-
-        if (totalHeight <= containerHeight) {
-          const score = totalHeight / containerHeight;
-          if (score > bestScore) {
-            bestScore = score;
-            bestCols = testCols;
-          }
-        }
-      }
-
-      setCols(bestCols);
+      setMaxCells(Math.min(maxRows * maxCols, videoTileData.length, 49));
     };
 
-    calculateOptimalCols();
-    window.addEventListener('resize', calculateOptimalCols);
-    return () => window.removeEventListener('resize', calculateOptimalCols);
-  }, [videoTileData.length]);
+    calculateMaxCells();
+    
+    const resizeObserver = new ResizeObserver(calculateMaxCells);
+    if (videoSpaceRef.current) {
+      resizeObserver.observe(videoSpaceRef.current);
+    }
 
+    return () => resizeObserver.disconnect();
+  }, [videoTileData?.length, aspectRatio]);
 
+  // Calculate number of columns (square root approach)
+  const cols = React.useMemo(() => {
+    const displayCount = Math.min(videoTileData?.length || 0, maxCells);
+    return Math.ceil(Math.sqrt(displayCount)) || 1;
+  }, [videoTileData?.length, maxCells]);
 
-  const aspectRatio = "16/9";
+  const rows = React.useMemo(() => {
+    const displayCount = Math.min(videoTileData?.length || 0, maxCells);
+    return Math.ceil(displayCount / cols) || 1;
+  }, [videoTileData?.length, maxCells, cols]);
 
   return (
     <div
-      ref={containerRef}
-      className="flex justify-center items-center relative gap-1 w-full p-5  flex-wrap place-items-center transition-all ease-in-out duration-200"
+      ref={videoSpaceRef}
+      className="relative gap-1 w-full h-full p-5 flex flex-wrap items-center justify-center place-items-center transition-all ease-in-out duration-200"
       style={{
-        maxWidth: "100vw",
-        height: "calc(100vh - 15rem)",
         alignContent: "center",
       }}
     >
-      {videoTileData.map(({ name, hasHandRaised, hasVideoOn, isSpeaking, isMicOff, stream, isLocal }, index) => (
-        <VideoTile
-          key={`${name}-${index}`}
-          name={name}
-          hasHandRaised={hasHandRaised}
-          hasVideoOn={hasVideoOn}
-          isSpeaking={isSpeaking}
-          isMicOff={isMicOff}
-          cols={cols}
-          aspectRatio={aspectRatio}
-          stream={stream}
-          isLocal={isLocal}
-        />
-      ))}
+      {videoTileData && videoTileData.length > 0 ? (
+        videoTileData.map(({ name, hasHandRaised, hasVideoOn, isSpeaking, isMicOff, stream, isLocal }, index) => (
+          <VideoTile
+            key={`${name}-${index}`}
+            name={name}
+            hasHandRaised={hasHandRaised}
+            hasVideoOn={hasVideoOn}
+            isSpeaking={isSpeaking}
+            isMicOff={isMicOff}
+            cols={cols}
+            rows={rows}
+            aspectRatio={aspectRatio}
+            stream={stream}
+            isLocal={isLocal}
+          />
+        ))
+      ) : (
+        <div className="flex flex-col justify-center items-center gap-3 text-white">
+          <p className="font-semibold text-2xl">No participants yet</p>
+        </div>
+      )}
     </div>
   );
 };

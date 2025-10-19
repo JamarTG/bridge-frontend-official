@@ -70,6 +70,7 @@ const ChatControls = ({
           variant="outline" 
           className="cursor-pointer rounded-full" 
           onClick={toggleAudio}
+          title={isAudioMuted ? "Unmute microphone" : "Mute microphone"}
         >
           {isAudioMuted ? (
             <MicOff className="w-5 h-5 text-destructive" />
@@ -83,6 +84,7 @@ const ChatControls = ({
           variant="outline" 
           className="cursor-pointer rounded-full" 
           onClick={toggleVideo}
+          title={isVideoMuted ? "Turn on camera" : "Turn off camera"}
         >
           {isVideoMuted ? (
             <VideoOff className="w-5 h-5 text-muted-foreground" />
@@ -96,6 +98,7 @@ const ChatControls = ({
           variant="outline" 
           className={`cursor-pointer rounded-full ${isScreenSharing ? 'bg-blue-500 text-white hover:bg-blue-600' : ''}`}
           onClick={toggleScreenShare}
+          title={isScreenSharing ? "Stop screen sharing" : "Share screen"}
         >
           {isScreenSharing ? (
             <MonitorOff className="w-5 h-5" />
@@ -114,8 +117,9 @@ const ChatControls = ({
           }`}
           onClick={toggleTranscription}
           disabled={!connected}
+          title={isTranscribing ? "Stop transcription" : "Start transcription"}
         >
-          <MicVocal className={`w-5 h-5 ${isTranscribing ? 'text-white' : ''}`} />
+          <MicVocal className={`w-5 h-5 ${isTranscribing ? 'text-black' : 'text-green-500'}`} />
           {isTranscribing && isSpeaking && (
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
           )}
@@ -130,15 +134,17 @@ const ChatControls = ({
               : "bg-transparent text-hand hover:bg-blue-100 active:bg-blue-300"
           }`}
           onClick={() => setHandRaised(!handRaised)}
+          title={handRaised ? "Lower hand" : "Raise hand"}
         >
-          <Hand className={`${handRaised ? "text-white" : "text-hand"} w-5 h-5`} />
+          <Hand className={`${handRaised ? "text-black" : "text-blue-500"} w-5 h-5`} />
         </Button>
 
         <Button 
           size="lg" 
-          variant="destructive" 
-          className="flex justify-center gap-1 cursor-pointer rounded-full px-1 transition-transform duration-200 hover:scale-105 active:scale-95"
+        
+          className="flex justify-center gap-1 bg-red-500 hover:bg-red-500/95 cursor-pointer rounded-full px-1 transition-transform duration-200 hover:scale-105 active:scale-95"
           onClick={() => window.location.href = '/'}
+          title="Leave meeting"
         >
           <Phone className="w-8 h-8 mr-1" />
         </Button>
