@@ -5,36 +5,65 @@ import { useScrollToBottom } from "@/hooks/useScrollToBottom";
 import ChatButton from "./chat-button";
 import PanelLayout from "./layout";
 
-const transcriptMessages = [
-  { name: "Jamari McFarlane", message: "We need to do the homework", originalLanguageCode: "FR", time: "2:34 PM" },
-  { name: "Jordan Campbell", message: "Yes I agree", originalLanguageCode: "FR", time: "2:34 PM" },
-  { name: "Micheal Webb", message: "No, we do not have time", originalLanguageCode: "EN", time: "2:35 PM" },
-];
+interface Message {
+  username: string;
+  message: string;
+  timestamp: string;
+  socketId: string;
+  isSystem: boolean;
+}
 
-const ChatTab = () => {
-  const messagesEndRef = useScrollToBottom(transcriptMessages);
+interface ChatTabProps {
+  messages: Message[];
+  messageInput: string;
+  setMessageInput: (value: string) => void;
+  sendMessage: (e: React.FormEvent) => void;
+  connected: boolean;
+}
+
+const ChatTab = ({ 
+  messages, 
+  messageInput, 
+  setMessageInput, 
+  sendMessage, 
+  connected 
+}: ChatTabProps) => {
+  const messagesEndRef = useScrollToBottom([messages]);
 
   return (
     <PanelLayout>
-      <ScrollArea className="flex-1  w-[95%] border rounded-md">
-        <div className=" px-8 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
-          {transcriptMessages.map((msg, index) => (
-            <MessageItem
-              key={index}
-              name={msg.name}
-              time={msg.time}
-              message={msg.message}
-              originalLangCode={msg.originalLanguageCode}
-            />
-          ))}
+      <ScrollArea className="flex-1 w-[95%] border rounded-md">
+        <div className="px-8 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
+          {messages.length === 0 ? (
+            <div className="text-center w-full py-8 text-muted-foreground text-sm">
+              No messages yet. Start the conversation!
+            </div>
+          ) : (
+            messages.map((msg, index) => (
+              <MessageItem
+                key={`${msg.socketId}-${msg.timestamp}-${index}`}
+                name={msg.username}
+                time={new Date(msg.timestamp).toLocaleTimeString()}
+                message={msg.message}
+                originalLangCode={msg.isSystem ? "SYSTEM" : "EN"}
+       
+              />
+            ))
+          )}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
-      <ChatButton placeholder="Type a message..." Icon={Send} />
+      <ChatButton 
+        Icon={Send}
+        placeholder="Type a message..." 
+        value={messageInput}
+        onChange={(e) => setMessageInput(e.target.value)}
+        onSubmit={sendMessage}
+        disabled={!connected}
+      />
     </PanelLayout>
   );
 };
 
 export default ChatTab;
-

@@ -18,6 +18,7 @@ interface User {
   email: string;
 }
 
+
 interface NavUserProps {
   user: User
 }

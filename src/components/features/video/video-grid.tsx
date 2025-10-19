@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Hand, MicOff } from 'lucide-react';
 
 const getInitials = (name: string): string => {
@@ -18,14 +18,35 @@ interface VideoTileProps {
   isSpeaking: boolean;
   cols: number;
   aspectRatio: string;
+  stream?: MediaStream | null;
+  isLocal?: boolean;
 }
 
-const VideoTile: React.FC<VideoTileProps> = ({ name, hasHandRaised, isMicOff, cols, aspectRatio }) => {
+const VideoTile: React.FC<VideoTileProps> = ({ 
+  name, 
+  hasHandRaised, 
+  isMicOff, 
+  hasVideoOn,
+  cols, 
+  aspectRatio,
+  stream,
+  isLocal = false
+}) => {
   const initials = getInitials(name);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(err => {
+        console.error('Error playing video:', err);
+      });
+    }
+  }, [stream]);
 
   return (
     <div 
-      className="cursor-pointer flex flex-col bg-gray-700 overflow-hidden border border-gray-600 relative rounded-lg"
+      className="cursor-pointer flex flex-col bg-gray-900 overflow-hidden border border-gray-600 relative rounded-lg"
       style={{
         aspectRatio: aspectRatio,
         flex: `1 1 calc((100% - ${(cols - 1) * 4}px) / ${cols})`,
@@ -46,15 +67,25 @@ const VideoTile: React.FC<VideoTileProps> = ({ name, hasHandRaised, isMicOff, co
         )}
       </div>
 
-      {/* Center initials */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-14 h-14 rounded-full bg-purple-900/30 border border-purple-500 flex items-center justify-center">
-          <span className="text-2xl font-bold text-purple-400">{initials}</span>
+      {/* Video element or placeholder */}
+      {hasVideoOn && stream ? (
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted={isLocal}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+          <div className="w-14 h-14 rounded-full bg-purple-900/30 border border-purple-500 flex items-center justify-center">
+            <span className="text-2xl font-bold text-purple-400">{initials}</span>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Bottom name */}
-      <div className="absolute bottom-0 left-1 right-1 py-0.5 px-1 bg-black/50">
+      {/* Bottom name bar */}
+      <div className="absolute bottom-0 left-0 right-0 py-1 px-2 bg-black/70 z-10">
         <p className="text-xs text-white font-medium truncate">{name}</p>
       </div>
     </div>
@@ -68,6 +99,8 @@ interface VideoGridProps {
     hasVideoOn: boolean;
     isSpeaking: boolean;
     isMicOff: boolean;
+    stream?: MediaStream | null;
+    isLocal?: boolean;
   }>;
 }
 
@@ -84,17 +117,17 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
       const containerHeight = container.clientHeight;
       const count = videoTileData.length;
       
-      // Try different column counts and find the one that uses space best
+      if (count === 0) return;
+      
       let bestCols = Math.ceil(Math.sqrt(count));
       let bestScore = 0;
       
       for (let testCols = 1; testCols <= count && testCols <= 6; testCols++) {
         const rows = Math.ceil(count / testCols);
         const tileWidth = containerWidth / testCols;
-        const tileHeight = tileWidth / (16 / 9); // assuming 16:9 aspect ratio
+        const tileHeight = tileWidth / (16 / 9);
         const totalHeight = tileHeight * rows;
         
-        // Prefer layouts that use more vertical space without overflow
         if (totalHeight <= containerHeight) {
           const score = totalHeight / containerHeight;
           if (score > bestScore) {
@@ -112,6 +145,8 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
     return () => window.removeEventListener('resize', calculateOptimalCols);
   }, [videoTileData.length]);
 
+  
+
   const aspectRatio = "16/9";
 
   return (
@@ -124,7 +159,7 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
         alignContent: "center",
       }}
     >
-      {videoTileData.map(({ name, hasHandRaised, hasVideoOn, isSpeaking, isMicOff }, index) => (
+      {videoTileData.map(({ name, hasHandRaised, hasVideoOn, isSpeaking, isMicOff, stream, isLocal }, index) => (
         <VideoTile
           key={`${name}-${index}`}
           name={name}
@@ -134,6 +169,8 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
           isMicOff={isMicOff}
           cols={cols}
           aspectRatio={aspectRatio}
+          stream={stream}
+          isLocal={isLocal}
         />
       ))}
     </div>
