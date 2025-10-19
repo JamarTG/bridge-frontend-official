@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useScrollToBottom } from "@/hooks/useScrollToBottom";
-import { Computer } from "lucide-react";
+import { Bot} from "lucide-react";
 import ChatButton from "./chat-button";
 import PanelLayout from "./layout";
 
@@ -73,7 +73,7 @@ const AITab = () => {
         </div>
       </ScrollArea>
 
-      <ChatButton placeholder="Type a message..." Icon={Computer} />
+      <ChatButton placeholder="Type a message..." Icon={Bot} />
     </PanelLayout>
   )
 }
