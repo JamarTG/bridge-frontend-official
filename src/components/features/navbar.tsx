@@ -28,7 +28,7 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="gap-1 cursor-default">
             <Users className="w-3" />
-            <span className="sm:text-md text-xs">12</span>
+            <span className="sm:text-md text-xs">3</span>
           </Badge>
           <Button
             className="cursor-pointer"

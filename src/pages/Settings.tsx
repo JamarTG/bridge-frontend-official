@@ -10,7 +10,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { ArrowLeft, Trash2, Undo2 } from "lucide-react";
+import { Trash2, Undo2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertDialog,
