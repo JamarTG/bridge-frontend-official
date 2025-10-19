@@ -5,6 +5,7 @@ import { Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Document from "./document";
 import PanelLayout from "./layout";
+import { useRoomId } from "@/context/RoomIDContext";
 
 interface DocumentItem {
   title: string;
@@ -35,7 +36,7 @@ const DocsTab = ({ meetingId }: DocsTabProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentMeetingId = meetingId || window.location.pathname.split('/').pop() || 'default-room';
-
+  const {roomId} = useRoomId();
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -123,9 +124,13 @@ const DocsTab = ({ meetingId }: DocsTabProps) => {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      if(!roomId) {
+        return;
+      }
 
-      const response = await fetch(`https://r5m2o3uxbfo3sr-8010.proxy.runpod.net/api/serve/upload/${currentMeetingId}`, {
+      formData.append('file', file);
+      formData.append('meeting_id', roomId);
+      const response = await fetch(`https://r5m2o3uxbfo3sr-8010.proxy.runpod.net/api/embedding/document`, {
         method: 'POST',
         body: formData,
       });
