@@ -42,8 +42,7 @@ const VideoTile: React.FC<VideoTileProps> = ({
         console.error('Error playing video:', err);
       });
     }
-  }, [stream]);
-
+  }, [stream, hasVideoOn]); 
   return (
     <div 
       className="cursor-pointer flex flex-col bg-gray-900 overflow-hidden border border-gray-600 relative rounded-lg"
