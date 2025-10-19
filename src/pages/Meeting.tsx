@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import type { FormEvent, JSX } from "react";
+import type { JSX } from "react";
 import * as mediasoupClient from "mediasoup-client";
 import { Device } from "mediasoup-client";
-import type { Transport, Producer,Consumer} from "mediasoup-client/types";
+import type { Transport, Producer, Consumer } from "mediasoup-client/types";
 import NavbarLayout from "@/components/features/navbar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ChatControls from "@/components/features/controls/chat-controls";
@@ -16,6 +16,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { useTranscription } from "@/hooks/useTranscription";
 import { Socket } from "socket.io-client";
 import { useAuth } from "@/context/AuthContext";
+import { useRoomId } from "@/context/RoomIDContext";
 
 // Type definitions
 interface Message {
@@ -91,12 +92,21 @@ const startTimestamp = "2025-10-17T01:00:00";
 
 const Meeting = (): JSX.Element => {
   // Get roomId from URL or use default
-   //https://134.199.193.207:3000
-  const roomId: string = window.location.pathname.split('/').pop() || 'default-room';
+  //https://134.199.193.207:3000
+
+  const rId: string = window.location.pathname.split('/').pop() || 'default-room';
+
+  const { setRoomId } = useRoomId();
+
+  useEffect(() => {
+
+    setRoomId(rId);
+  }, [])
+
   const { user } = useAuth();
   const { connected, emit, on, off } = useSocket(
     import.meta.env.VITE_SOCKET_URL || "ws://134.199.193.207:3000/",
-   
+
 
     { withCredentials: false }
   );
@@ -134,18 +144,17 @@ const Meeting = (): JSX.Element => {
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
-  const [messageInput, setMessageInput] = useState<string>("");
 
   // User settings
   const [username] = useState<string>(
-    user?.name || 
+    user?.name ||
     localStorage.getItem("displayName") ||
     `User-${Math.floor(Math.random() * 1000)}`
   );
 
   const [displayName] = useState<string>(
-    user?.name || 
-    localStorage.getItem("displayName") || 
+    user?.name ||
+    localStorage.getItem("displayName") ||
     ""
   );
 
@@ -167,7 +176,7 @@ const Meeting = (): JSX.Element => {
     isSpeaking,
     transcriptions,
     toggleTranscription,
-  } = useTranscription(emit as Socket["emit"], on as Socket["on"], off as Socket["off"], connected as Socket["connected"], roomId as string, language as string);
+  } = useTranscription(emit as Socket["emit"], on as Socket["on"], off as Socket["off"], connected as Socket["connected"], rId as string, language as string);
 
   // const languages: Language[] = [
   //   { code: "en", name: "English", flag: "🇺🇸" },
@@ -215,21 +224,21 @@ const Meeting = (): JSX.Element => {
     setVideoTileData(tiles);
   }, [peerStatuses, isAudioMuted, isVideoMuted, isSpeaking, displayName, username, localStreamReady]);
   // Add this after the videoTileData update effect:
-    useEffect(() => {
-      console.log('📹 Video tile data updated:', {
-        tileCount: videoTileData.length,
-        tiles: videoTileData.map(t => ({
-          name: t.name,
-          hasVideoOn: t.hasVideoOn,
-          hasStream: !!t.stream,
-          isLocal: t.isLocal
-        }))
-      });
-    }, [videoTileData]);
+  useEffect(() => {
+    console.log('📹 Video tile data updated:', {
+      tileCount: videoTileData.length,
+      tiles: videoTileData.map(t => ({
+        name: t.name,
+        hasVideoOn: t.hasVideoOn,
+        hasStream: !!t.stream,
+        isLocal: t.isLocal
+      }))
+    });
+  }, [videoTileData]);
 
-// Add this in addTrackToRemoteStream:
-console.log('📹 Remote streams map size:', remoteStreamsRef.current.size);
-console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys()));
+  // Add this in addTrackToRemoteStream:
+  console.log('📹 Remote streams map size:', remoteStreamsRef.current.size);
+  console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys()));
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -257,7 +266,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
         if (myVideoRef.current) {
           myVideoRef.current.srcObject = stream;
           myVideoRef.current.muted = true;
-          await myVideoRef.current.play().catch(() => {});
+          await myVideoRef.current.play().catch(() => { });
         }
         console.log("Local stream obtained");
         setLocalStreamReady(true);
@@ -392,8 +401,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
       isVideoMuted: boolean;
     }): void => {
       console.log(
-        `Peer ${socketId} media status: audio ${
-          isAudioMuted ? "muted" : "unmuted"
+        `Peer ${socketId} media status: audio ${isAudioMuted ? "muted" : "unmuted"
         }, video ${isVideoMuted ? "off" : "on"}`
       );
       peerMediaStatusRef.current.set(socketId, {
@@ -438,9 +446,9 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
 
     const checkAndJoin = (): void => {
       if (myStreamRef.current) {
-        console.log("Joining room:", roomId, "as", displayName || username);
+        console.log("Joining room:", rId, "as", displayName || username);
         emit("join-room", {
-          roomId,
+          roomId: rId,
           username,
           displayName: displayName || username, // Will use authenticated user's name
           language,
@@ -463,7 +471,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
       off("peer-media-status", handlePeerMediaStatus);
       off("existing-peer-statuses", handleExistingPeerStatuses);
     };
-  }, [connected, roomId, username, displayName, language]);
+  }, [connected, rId, username, displayName, language]);
 
   const createSendTransport = async (): Promise<Transport> => {
     console.log("Creating send transport...");
@@ -479,7 +487,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
         const transport = deviceRef.current!.createSendTransport(data);
         producerTransportRef.current = transport;
 
-        transport.on("connectionstatechange", (state:any) => {
+        transport.on("connectionstatechange", (state: any) => {
           console.log(`🔌 SEND transport connection state: ${state}`);
         });
 
@@ -696,7 +704,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
       console.log(
         `Stream for ${socketId} now has ${stream.getTracks().length} tracks`
       );
-      
+
       // Force update video tiles when new tracks are added
       setPeerStatuses((prev) => ({ ...prev, [socketId]: prev[socketId] || {} }));
     }
@@ -731,17 +739,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
     });
   };
 
-  const sendMessage = (e: FormEvent<Element>): void => {
-    e.preventDefault();
-    if (messageInput.trim() && connected) {
-      emit("send-chat-message", {
-        roomId,
-        username: displayName || username,
-        message: messageInput.trim(),
-      });
-      setMessageInput("");
-    }
-  };
+ 
 
   // const savePreferences = (): void => {
   //   if (displayName.trim()) {
@@ -926,18 +924,16 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
 
             <div className="flex-1 flex flex-col">
               <TabsContent value="chat">
-                <ChatTab 
-                  messages={messages}
-                  messageInput={messageInput}
-                  setMessageInput={setMessageInput}
-                  sendMessage={sendMessage}
-                  connected={connected}
+                <ChatTab
+              
+                
+              
                 />
               </TabsContent>
-              <TabsContent value="ai"><AITab /></TabsContent>
+              <TabsContent value="ai"><AITab meetingId={rId} /></TabsContent>
               <TabsContent value="docs"><DocsTab /></TabsContent>
               <TabsContent value="transcript">
-                <TranscriptTab 
+                <TranscriptTab
                   transcriptions={transcriptions}
                   language={language}
                   streamingTranslation={streamingTranslation}
@@ -949,7 +945,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
         </div>
       </div>
 
-      <ChatControls 
+      <ChatControls
         meetingStartTime={startTimestamp}
         isAudioMuted={isAudioMuted}
         isVideoMuted={isVideoMuted}
