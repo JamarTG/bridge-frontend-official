@@ -110,53 +110,21 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({
   aspectRatio = "16/9" 
 }) => {
   const videoSpaceRef = useRef<HTMLDivElement>(null);
-  const [maxCells, setMaxCells] = React.useState(49);
 
-  // Calculate maximum cells that can fit
-  React.useEffect(() => {
-    const calculateMaxCells = () => {
-      if (!videoSpaceRef.current || !videoTileData) return;
-
-      const { clientHeight, clientWidth } = videoSpaceRef.current;
-
-      const minTileHeight = aspectRatio === "1/1" ? 160 : aspectRatio === "4/3" ? 120 : 90;
-      const minTileWidth = 160;
-
-      const maxRows = Math.floor(clientHeight / minTileHeight);
-      const maxCols = Math.floor(clientWidth / minTileWidth);
-
-      setMaxCells(Math.min(maxRows * maxCols, videoTileData.length, 49));
+  const gridStyle = React.useMemo(() => {
+    const ratio = aspectRatio === "1/1" ? 1 : aspectRatio === "4/3" ? 4/3 : 16/9;
+    return {
+      display: "grid",
+      gridTemplateColumns: `repeat(auto-fit, minmax(${Math.floor(160)}px, 1fr))`,
+      gridAutoRows: `minmax(${Math.floor(160 / ratio)}px, 1fr)`,
+      gap: "4px",
+      width: "100%",
+      height: "100%",
     };
-
-    calculateMaxCells();
-    
-    const resizeObserver = new ResizeObserver(calculateMaxCells);
-    if (videoSpaceRef.current) {
-      resizeObserver.observe(videoSpaceRef.current);
-    }
-
-    return () => resizeObserver.disconnect();
-  }, [videoTileData?.length, aspectRatio]);
-
-  // Calculate number of columns (square root approach)
-  const cols = React.useMemo(() => {
-    const displayCount = Math.min(videoTileData?.length || 0, maxCells);
-    return Math.ceil(Math.sqrt(displayCount)) || 1;
-  }, [videoTileData?.length, maxCells]);
-
-  const rows = React.useMemo(() => {
-    const displayCount = Math.min(videoTileData?.length || 0, maxCells);
-    return Math.ceil(displayCount / cols) || 1;
-  }, [videoTileData?.length, maxCells, cols]);
+  }, [aspectRatio]);
 
   return (
-    <div
-      ref={videoSpaceRef}
-      className="relative gap-1 w-full h-full p-5 flex flex-wrap items-center justify-center place-items-center transition-all ease-in-out duration-200"
-      style={{
-        alignContent: "center",
-      }}
-    >
+    <div ref={videoSpaceRef} style={gridStyle}>
       {videoTileData && videoTileData.length > 0 ? (
         videoTileData.map(({ name, hasHandRaised, hasVideoOn, isSpeaking, isMicOff, stream, isLocal }, index) => (
           <VideoTile
@@ -166,8 +134,8 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({
             hasVideoOn={hasVideoOn}
             isSpeaking={isSpeaking}
             isMicOff={isMicOff}
-            cols={cols}
-            rows={rows}
+            cols={0} // not needed
+            rows={0} // not needed
             aspectRatio={aspectRatio}
             stream={stream}
             isLocal={isLocal}
