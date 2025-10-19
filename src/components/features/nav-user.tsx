@@ -36,11 +36,16 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
     ("D" + ((user.name.split(" ")[1] && user.name.split(" ")[1][0]) || "U"));
 
   const [language, setLanguage] = useState<string>(() => {
-    return localStorage.getItem("lang") ?? "en";
+    return localStorage.getItem("language") ?? "en";  // Changed from "lang" to "language"
   });
 
+  // useEffect(() => {
+  //   localStorage.setItem("lang", language);
+  //   window.dispatchEvent(new CustomEvent("languageChanged", { detail: language }));
+  // }, [language]);
+
   useEffect(() => {
-    localStorage.setItem("lang", language);
+    localStorage.setItem("language", language);
     window.dispatchEvent(new CustomEvent("languageChanged", { detail: language }));
   }, [language]);
 

@@ -103,9 +103,13 @@ const Meeting = (): JSX.Element => {
     setRoomId(rId);
   }, [])
 
+      //import.meta.env.VITE_SOCKET_URL || "ws://134.199.193.207:3000/",
+
+
   const { user } = useAuth();
   const { connected, emit, on, off } = useSocket(
-    import.meta.env.VITE_SOCKET_URL || "ws://134.199.193.207:3000/",
+    import.meta.env.VITE_SOCKET_URL || "http://localhost:3000/",
+    // wss://134.199.193.207:3001/
 
 
     { withCredentials: false }
@@ -142,6 +146,7 @@ const Meeting = (): JSX.Element => {
   const [videoTileData, setVideoTileData] = useState<VideoTileData[]>([]);
   const [localStreamReady, setLocalStreamReady] = useState<boolean>(false);
 
+
   // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -158,7 +163,7 @@ const Meeting = (): JSX.Element => {
     ""
   );
 
-  const [language, _setLanguage] = useState<string>(
+  const [language, setLanguage] = useState<string>(
     localStorage.getItem("language") || "en"
   );
   const [_showSettings, _setShowSettings] = useState<boolean>(false);
@@ -193,6 +198,27 @@ const Meeting = (): JSX.Element => {
   //   { code: "hi", name: "Hindi", flag: "🇮🇳" },
   // ];
 
+  // Add this useEffect after the other useEffects in Meeting.tsx
+  useEffect(() => {
+    const handleLanguageChange = (event: CustomEvent<string>) => {
+      const newLanguage = event.detail;
+      console.log('Language changed to:', newLanguage);
+      setLanguage(newLanguage);
+      
+      // Notify the backend of the language change
+      if (connected) {
+        emit("update-language", {
+          language: newLanguage,
+        });
+      }
+    };
+
+    window.addEventListener('languageChanged', handleLanguageChange as EventListener);
+
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange as EventListener);
+    };
+  }, [connected, emit]);
   useEffect(() => {
     const tiles: VideoTileData[] = Array.from(remoteStreamsRef.current.entries()).map(([socketId, stream]) => {
       const status = peerMediaStatusRef.current.get(socketId);
@@ -440,21 +466,22 @@ const Meeting = (): JSX.Element => {
     on("peer-media-status", handlePeerMediaStatus);
     on("existing-peer-statuses", handleExistingPeerStatuses);
 
-    const checkAndJoin = (): void => {
-      if (myStreamRef.current) {
-        console.log("Joining room:", rId, "as", displayName || username);
-        emit("join-room", {
-          roomId: rId,
-          username,
-          displayName: displayName || username, // Will use authenticated user's name
-          language,
-        });
-      } else {
-        console.log("Waiting for local stream before joining...");
-        setTimeout(checkAndJoin, 100);
-      }
-    };
-    checkAndJoin();
+   
+  const checkAndJoin = (): void => {
+    if (myStreamRef.current) {
+      console.log("Joining room:", rId, "as", displayName || username);
+      emit("join-room", {
+        roomId: rId,
+        username,
+        displayName: displayName || username,
+        language,
+      });
+    } else {
+      console.log("Waiting for local stream before joining...");
+      setTimeout(checkAndJoin, 100);
+    }
+  };
+  checkAndJoin();
 
     return () => {
       console.log("Cleaning up event handlers");
@@ -467,7 +494,7 @@ const Meeting = (): JSX.Element => {
       off("peer-media-status", handlePeerMediaStatus);
       off("existing-peer-statuses", handleExistingPeerStatuses);
     };
-  }, [connected, rId, username, displayName, language]);
+  }, [connected, rId, username, displayName]);
 
   const createSendTransport = async (): Promise<Transport> => {
     console.log("Creating send transport...");
@@ -736,7 +763,15 @@ const Meeting = (): JSX.Element => {
   };
 
 
+  const sendChatMessage = (message: string): void => {
+    if (!connected || !message.trim()) return;
 
+    emit("send-chat-message", {
+      roomId: rId,
+      username: displayName || username,
+      message: message.trim(),
+    });
+  };
   // const savePreferences = (): void => {
   //   if (displayName.trim()) {
   //     setUsername(displayName);
@@ -849,6 +884,7 @@ const Meeting = (): JSX.Element => {
       alert("Failed to start screen sharing. Please try again.");
     }
   };
+  
 
   const stopScreenShare = (): void => {
     console.log("Stopping screen share...");
@@ -920,11 +956,16 @@ const Meeting = (): JSX.Element => {
 
             <div className="flex-1 flex flex-col">
               <TabsContent value="chat">
-                <ChatTab
-
-
-
+              <TabsContent value="chat">
+               <ChatTab
+                  messages={messages}
+                  onSendMessage={sendChatMessage}
+                  connected={connected}
+                  username={displayName || username}
+                  emit={emit}  // Pass emit function directly
+                  userLanguage={language} // Pass user's language preference
                 />
+            </TabsContent>
               </TabsContent>
               <TabsContent value="ai"><AITab meetingId={rId} /></TabsContent>
               <TabsContent value="docs"><DocsTab /></TabsContent>

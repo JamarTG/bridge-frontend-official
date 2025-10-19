@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import MessageItem from "../message-item";
-import { useScrollToBottom } from "@/hooks/useScrollToBottom";
 import ChatButton from "./chat-button";
 import PanelLayout from "./layout";
 
@@ -14,32 +13,91 @@ interface Message {
   isSystem: boolean;
 }
 
-const ChatTab = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+interface ChatTabProps {
+  messages: Message[];
+  onSendMessage: (message: string) => void;
+  connected: boolean;
+  username: string;
+  emit: any; // Socket emit function
+  userLanguage?: string; // User's preferred language
+}
+
+interface MessageTranslation {
+  [messageId: string]: {
+    text: string;
+    isLoading: boolean;
+  };
+}
+
+const ChatTab = ({ 
+  messages, 
+  onSendMessage, 
+  connected, 
+  username,
+  emit,
+  userLanguage = "en"
+}: ChatTabProps) => {
   const [messageInput, setMessageInput] = useState("");
-  const [connected, _setConnected] = useState(true); 
+  const [translations, setTranslations] = useState<MessageTranslation>({});
 
-  const messagesEndRef = useScrollToBottom([messages]);
-
-  const sendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     const text = messageInput.trim();
     if (!text || !connected) return;
 
-    const newMsg: Message = {
-      username: "You",
-      message: text,
-      timestamp: new Date().toISOString(),
-      socketId:
-        (typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? (crypto as any).randomUUID()
-          : Math.random().toString(36).slice(2)) as string,
-      isSystem: false,
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
+    onSendMessage(text);
     setMessageInput("");
   };
+
+  const handleTranslate = (messageId: string, originalText: string) => {
+    if (!emit || !connected) {
+      console.error("Socket not available");
+      return;
+    }
+
+    console.log(`🌐 Requesting translation for message ${messageId} to ${userLanguage}`);
+
+    // Mark as loading
+    setTranslations(prev => ({
+      ...prev,
+      [messageId]: { text: "", isLoading: true }
+    }));
+
+    // Request translation
+    emit(
+      "translate-chat-message",
+      {
+        messageText: originalText,
+        targetLanguage: userLanguage,
+        messageId
+      },
+      (response: { success?: boolean; translatedText?: string; error?: string; messageId?: string }) => {
+        console.log('Translation response:', response);
+        
+        if (response.success && response.translatedText) {
+          console.log(`✅ Translation received: ${response.translatedText}`);
+          setTranslations(prev => ({
+            ...prev,
+            [messageId]: { 
+              text: response.translatedText!, 
+              isLoading: false 
+            }
+          }));
+        } else {
+          console.error("❌ Translation failed:", response.error);
+          // Remove loading state on error
+          setTranslations(prev => {
+            const newTranslations = { ...prev };
+            delete newTranslations[messageId];
+            return newTranslations;
+          });
+        }
+      }
+    );
+  };
+
+  const getMessageId = (msg: Message, index: number) => 
+    `${msg.socketId}-${msg.timestamp}-${index}`;
 
   return (
     <PanelLayout className="flex justify-center items-center w-full">
@@ -50,17 +108,25 @@ const ChatTab = () => {
               <p>No messages yet. Start the conversation!</p>
             </div>
           ) : (
-            messages.map((msg, index) => (
-              <MessageItem
-                key={`${msg.socketId}-${msg.timestamp}-${index}`}
-                name={msg.username}
-                time={new Date(msg.timestamp).toLocaleTimeString()}
-                message={msg.message}
-                originalLangCode={msg.isSystem ? "SYSTEM" : "EN"}
-              />
-            ))
+            messages.map((msg, index) => {
+              const messageId = getMessageId(msg, index);
+              const translationData = translations[messageId];
+
+              return (
+                <MessageItem
+                  key={messageId}
+                  name={msg.username}
+                  time={new Date(msg.timestamp).toLocaleTimeString()}
+                  message={msg.message}
+                  originalLangCode={msg.isSystem ? "SYSTEM" : "EN"}
+                  messageId={messageId}
+                  onTranslate={handleTranslate}
+                  translation={translationData?.text}
+                  isTranslating={translationData?.isLoading}
+                />
+              );
+            })
           )}
-          <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
@@ -69,7 +135,7 @@ const ChatTab = () => {
         placeholder="Type a message..."
         value={messageInput}
         onChange={(e) => setMessageInput(e.target.value)}
-        onSubmit={sendMessage}
+        onSubmit={handleSendMessage}
         disabled={!connected}
       />
     </PanelLayout>
