@@ -35,7 +35,7 @@ const Dashboard = () => {
   return (
     <NavbarLayout>
       <div className="flex h-[100vh] flex-col lg:flex-row justify-center items-center w-full px-4 py-6 gap-6">
-        <Card className="w-96 h-48 shadow-md border rounded-2xl">
+        <Card className="w-72 sm:w-96 h-48 shadow-md border rounded-2xl">
           <CardHeader className="text-center">
             <CardTitle className="text-xl font-semibold">
               {meeting ? "Create New Meeting" : "Start a Meeting"}
@@ -57,7 +57,7 @@ const Dashboard = () => {
         </Card>
 
 
-        <Card className="w-96 h-48 shadow-md border rounded-2xl flex justify-center items-center">
+        <Card className="w-72 sm:w-96 h-48 shadow-md border rounded-2xl flex justify-center items-center">
           {meeting ? (
             <CardContent className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-4 w-full">
               <div>

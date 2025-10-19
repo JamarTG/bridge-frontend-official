@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useScrollToBottom } from "@/hooks/useScrollToBottom";
-import { Bot} from "lucide-react";
+import { Bot } from "lucide-react";
 import ChatButton from "./chat-button";
 import PanelLayout from "./layout";
 
@@ -54,9 +54,9 @@ const AITab = () => {
   const messagesEndRef = useScrollToBottom([]);
 
   return (
-    <PanelLayout>
-      <ScrollArea className="flex-1  w-[95%] border rounded-md">
-        <div className="px-4 h-96 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
+    <PanelLayout className="flex justify-center items-center w-full">
+      <ScrollArea className="flex-1 w-80 sm:w-[95%] border rounded-md">
+        <div className="h-120 px-4 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {aiConversation.map((msg, i) => (
             <div key={i} className={`w-96 flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
               <div
@@ -78,30 +78,4 @@ const AITab = () => {
   )
 }
 
-
-{/* <PanelLayout>
-      <div className="space-y-2 px-4 py-4">
-        <ScrollArea className="w-full h-80 overflow-auto p-0">
-
-          {aiConversation.map((msg, i) => (
-            <div key={i} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[70%] p-2 rounded-lg text-sm ${msg.sender === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-                  }`}
-              >
-                {msg.message}
-              </div>
-            </div>
-          ))}
-          <div ref={aiMessagesEndRef} />
-
-        </ScrollArea>
-      </div>
-
-
-      <ChatButton placeholder="Ask the AI anything..." Icon={Bot} />
-
-    </PanelLayout> */}
 export default AITab;

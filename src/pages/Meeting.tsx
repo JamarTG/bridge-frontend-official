@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import type { FormEvent, JSX, RefObject } from "react";
 import * as mediasoupClient from "mediasoup-client";
+import { Device } from "mediasoup-client";
+import type { Transport, Producer,Consumer} from "mediasoup-client/types";
 import NavbarLayout from "@/components/features/navbar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ChatControls from "@/components/features/controls/chat-controls";
@@ -11,12 +14,83 @@ import { Bot, FileText, MessageCircle } from "lucide-react";
 import DynamicVideoGrid from "@/components/features/video/video-grid";
 import { useSocket } from "@/hooks/useSocket";
 import { useTranscription } from "@/hooks/useTranscription";
+import { Socket } from "socket.io-client";
+
+// Type definitions
+interface Message {
+  username: string;
+  message: string;
+  timestamp: string;
+  socketId: string;
+  isSystem: boolean;
+}
+
+interface VideoTileData {
+  name: string;
+  hasHandRaised: boolean;
+  hasVideoOn: boolean;
+  isSpeaking: boolean;
+  isMicOff: boolean;
+  stream: MediaStream | null;
+  isLocal: boolean;
+}
+
+interface PeerStatus {
+  isAudioMuted: boolean;
+  isVideoMuted: boolean;
+}
+
+interface PeerMediaStatus extends PeerStatus {
+  username: string;
+}
+
+interface Language {
+  code: string;
+  name: string;
+  flag: string;
+}
+
+interface PendingProducer {
+  producerId: string;
+  socketId: string;
+  appData?: Record<string, any>;
+}
+
+interface RouterCapabilitiesData {
+  rtpCapabilities: mediasoupClient.types.RtpCapabilities;
+}
+
+interface TransportData {
+  id: string;
+  iceParameters: mediasoupClient.types.IceParameters;
+  iceCandidates: mediasoupClient.types.IceCandidate[];
+  dtlsParameters: mediasoupClient.types.DtlsParameters;
+  error?: string;
+}
+
+interface ProduceResponse {
+  id: string;
+  error?: string;
+}
+
+interface ConsumeResponse {
+  id: string;
+  producerId: string;
+  kind: mediasoupClient.types.MediaKind;
+  rtpParameters: mediasoupClient.types.RtpParameters;
+  appData?: Record<string, any>;
+  error?: string;
+}
+
+interface ResumeResponse {
+  error?: string;
+}
 
 const startTimestamp = "2025-10-17T01:00:00";
 
-const Meeting = () => {
+const Meeting = (): JSX.Element => {
   // Get roomId from URL or use default
-  const roomId = window.location.pathname.split('/').pop() || 'default-room';
+  const roomId: string = window.location.pathname.split('/').pop() || 'default-room';
   
   const { connected, emit, on, off } = useSocket(
     import.meta.env.VITE_SOCKET_URL || "http://localhost:3000/",
@@ -24,68 +98,68 @@ const Meeting = () => {
   );
 
   // Video refs
-  const myVideoRef = useRef(null);
-  const remoteContainerRef = useRef(null);
-  const screenShareRef = useRef(null);
-  const myStreamRef = useRef(null);
-  const screenStreamRef = useRef(null);
+  const myVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteContainerRef = useRef<HTMLDivElement | null>(null);
+  const screenShareRef = useRef<HTMLVideoElement | null>(null);
+  const myStreamRef = useRef<MediaStream | null>(null);
+  const screenStreamRef = useRef<MediaStream | null>(null);
 
   // Mediasoup refs
-  const deviceRef = useRef(null);
-  const producerTransportRef = useRef(null);
-  const consumerTransportRef = useRef(null);
-  const consumersRef = useRef(new Map());
-  const remoteStreamsRef = useRef(new Map());
-  const remoteScreenStreamsRef = useRef(new Map());
-  const peerMediaStatusRef = useRef(new Map());
-  const pendingProducersRef = useRef([]);
-  const isReadyRef = useRef(false);
+  const deviceRef = useRef<Device | null>(null);
+  const producerTransportRef = useRef<Transport | null>(null);
+  const consumerTransportRef = useRef<Transport | null>(null);
+  const consumersRef = useRef<Map<string, Map<string, Consumer>>>(new Map());
+  const remoteStreamsRef = useRef<Map<string, MediaStream>>(new Map());
+  const remoteScreenStreamsRef = useRef<Map<string, MediaStream>>(new Map());
+  const peerMediaStatusRef = useRef<Map<string, PeerMediaStatus>>(new Map());
+  const pendingProducersRef = useRef<PendingProducer[]>([]);
+  const isReadyRef = useRef<boolean>(false);
 
-  const audioProducerRef = useRef(null);
-  const videoProducerRef = useRef(null);
-  const screenVideoProducerRef = useRef(null);
-  const screenAudioProducerRef = useRef(null);
+  const audioProducerRef = useRef<Producer | null>(null);
+  const videoProducerRef = useRef<Producer | null>(null);
+  const screenVideoProducerRef = useRef<Producer | null>(null);
+  const screenAudioProducerRef = useRef<Producer | null>(null);
 
   // UI state
-  const [isAudioMuted, setIsAudioMuted] = useState(false);
-  const [isVideoMuted, setIsVideoMuted] = useState(false);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [peerStatuses, setPeerStatuses] = useState({});
-  const [videoTileData, setVideoTileData] = useState([]);
+  const [isAudioMuted, setIsAudioMuted] = useState<boolean>(false);
+  const [isVideoMuted, setIsVideoMuted] = useState<boolean>(false);
+  const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
+  const [peerStatuses, setPeerStatuses] = useState<Record<string, PeerStatus>>({});
+  const [videoTileData, setVideoTileData] = useState<VideoTileData[]>([]);
 
   // Chat state
-  const [messages, setMessages] = useState([]);
-  const [messageInput, setMessageInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageInput, setMessageInput] = useState<string>("");
 
   // User settings
-  const [username, setUsername] = useState(
+  const [username, setUsername] = useState<string>(
     localStorage.getItem("displayName") ||
       `User-${Math.floor(Math.random() * 1000)}`
   );
-  const [displayName, setDisplayName] = useState(
+  const [displayName, setDisplayName] = useState<string>(
     localStorage.getItem("displayName") || ""
   );
-  const [language, setLanguage] = useState(
+  const [language, setLanguage] = useState<string>(
     localStorage.getItem("language") || "en"
   );
-  const [showSettings, setShowSettings] = useState(false);
+  const [showSettings, setShowSettings] = useState<boolean>(false);
 
   // Streaming translation UI states
-  const [streamingTranslation, setStreamingTranslation] = useState("");
-  const [currentTranslatingId, setCurrentTranslatingId] = useState(null);
+  const [streamingTranslation, setStreamingTranslation] = useState<string>("");
+  const [currentTranslatingId, setCurrentTranslatingId] = useState<string | null>(null);
 
-  const chatEndRef = useRef(null);
-  const transcriptionEndRef = useRef(null);
-  const [activeTab, setActiveTab] = useState("chat");
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const transcriptionEndRef = useRef<HTMLDivElement | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("chat");
 
   const {
     isTranscribing,
     isSpeaking,
     transcriptions,
     toggleTranscription,
-  } = useTranscription(emit, on, off, connected, roomId, language);
+  } = useTranscription(emit as Socket["emit"], on as Socket["on"], off as Socket["off"], connected as Socket["connected"], roomId as string, language as string);
 
-  const languages = [
+  const languages: Language[] = [
     { code: "en", name: "English", flag: "🇺🇸" },
     { code: "es", name: "Spanish", flag: "🇪🇸" },
     { code: "fr", name: "French", flag: "🇫🇷" },
@@ -102,7 +176,7 @@ const Meeting = () => {
 
   // Update video tiles when peer statuses change
   useEffect(() => {
-    const tiles = Array.from(remoteStreamsRef.current.entries()).map(([socketId, stream]) => {
+    const tiles: VideoTileData[] = Array.from(remoteStreamsRef.current.entries()).map(([socketId, stream]) => {
       const status = peerMediaStatusRef.current.get(socketId);
       return {
         name: status?.username || socketId,
@@ -128,6 +202,23 @@ const Meeting = () => {
 
     setVideoTileData(tiles);
   }, [peerStatuses, isAudioMuted, isVideoMuted, isSpeaking, displayName, username]);
+
+  // Add this after the videoTileData update effect:
+useEffect(() => {
+  console.log('📹 Video tile data updated:', {
+    tileCount: videoTileData.length,
+    tiles: videoTileData.map(t => ({
+      name: t.name,
+      hasVideoOn: t.hasVideoOn,
+      hasStream: !!t.stream,
+      isLocal: t.isLocal
+    }))
+  });
+}, [videoTileData]);
+
+// Add this in addTrackToRemoteStream:
+console.log('📹 Remote streams map size:', remoteStreamsRef.current.size);
+console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys()));
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -173,7 +264,7 @@ const Meeting = () => {
 
     console.log("Registering event handlers...");
 
-    const handleRouterCapabilities = async ({ rtpCapabilities }) => {
+    const handleRouterCapabilities = async ({ rtpCapabilities }: RouterCapabilitiesData): Promise<void> => {
       try {
         console.log("Received router RTP capabilities");
         const device = new mediasoupClient.Device();
@@ -203,7 +294,7 @@ const Meeting = () => {
       }
     };
 
-    const handleExistingProducers = async (producers) => {
+    const handleExistingProducers = async (producers: PendingProducer[]): Promise<void> => {
       console.log("Existing producers received:", producers);
 
       if (!isReadyRef.current) {
@@ -217,7 +308,7 @@ const Meeting = () => {
       }
     };
 
-    const handleNewProducer = async ({ producerId, socketId, appData }) => {
+    const handleNewProducer = async ({ producerId, socketId, appData }: PendingProducer): Promise<void> => {
       console.log(
         "New producer event:",
         producerId,
@@ -237,7 +328,7 @@ const Meeting = () => {
       await consume(producerId, socketId, appData);
     };
 
-    const handlePeerLeft = ({ socketId }) => {
+    const handlePeerLeft = ({ socketId }: { socketId: string }): void => {
       console.log("Peer left:", socketId);
       removeRemoteVideo(socketId);
     };
@@ -248,7 +339,7 @@ const Meeting = () => {
       timestamp,
       socketId,
       isSystem,
-    }) => {
+    }: Message): void => {
       setMessages((prev) => [
         ...prev,
         { username, message, timestamp, socketId, isSystem },
@@ -260,7 +351,12 @@ const Meeting = () => {
       timestamp,
       chunk,
       isComplete,
-    }) => {
+    }: {
+      socketId: string;
+      timestamp: string;
+      chunk: string;
+      isComplete: boolean;
+    }): void => {
       const translationId = `${socketId}-${timestamp}`;
 
       if (isComplete) {
@@ -277,7 +373,12 @@ const Meeting = () => {
       username,
       isAudioMuted,
       isVideoMuted,
-    }) => {
+    }: {
+      socketId: string;
+      username: string;
+      isAudioMuted: boolean;
+      isVideoMuted: boolean;
+    }): void => {
       console.log(
         `Peer ${socketId} media status: audio ${
           isAudioMuted ? "muted" : "unmuted"
@@ -294,7 +395,12 @@ const Meeting = () => {
       }));
     };
 
-    const handleExistingPeerStatuses = (statuses) => {
+    const handleExistingPeerStatuses = (statuses: Array<{
+      socketId: string;
+      username: string;
+      isAudioMuted: boolean;
+      isVideoMuted: boolean;
+    }>): void => {
       console.log("Received existing peer statuses:", statuses);
       statuses.forEach(({ socketId, username, isAudioMuted, isVideoMuted }) => {
         peerMediaStatusRef.current.set(socketId, {
@@ -318,7 +424,7 @@ const Meeting = () => {
     on("peer-media-status", handlePeerMediaStatus);
     on("existing-peer-statuses", handleExistingPeerStatuses);
 
-    const checkAndJoin = () => {
+    const checkAndJoin = (): void => {
       if (myStreamRef.current) {
         console.log("Joining room:", roomId);
         emit("join-room", {
@@ -347,10 +453,10 @@ const Meeting = () => {
     };
   }, [connected, roomId, username, displayName, language]);
 
-  const createSendTransport = async () => {
+  const createSendTransport = async (): Promise<Transport> => {
     console.log("Creating send transport...");
     return new Promise((resolve, reject) => {
-      emit("create-webrtc-transport", { direction: "send" }, async (data) => {
+      emit("create-webrtc-transport", { direction: "send" }, async (data: TransportData) => {
         if (data.error) {
           console.error("Failed to create send transport:", data.error);
           reject(data.error);
@@ -358,7 +464,7 @@ const Meeting = () => {
         }
 
         console.log("Send transport created:", data.id);
-        const transport = deviceRef.current.createSendTransport(data);
+        const transport = deviceRef.current!.createSendTransport(data);
         producerTransportRef.current = transport;
 
         transport.on("connectionstatechange", (state) => {
@@ -373,7 +479,7 @@ const Meeting = () => {
                 transportId: transport.id,
                 dtlsParameters,
               },
-              (response) => {
+              (response: { error?: string }) => {
                 if (response.error) {
                   console.error(
                     "Failed to connect send transport:",
@@ -387,7 +493,7 @@ const Meeting = () => {
               }
             );
           } catch (error) {
-            errback(error);
+            errback(error as any);
           }
         });
 
@@ -403,7 +509,7 @@ const Meeting = () => {
                   rtpParameters,
                   appData,
                 },
-                (response) => {
+                (response: ProduceResponse) => {
                   if (response.error) {
                     console.error("Failed to produce:", response.error);
                     errback(new Error(response.error));
@@ -414,7 +520,7 @@ const Meeting = () => {
                 }
               );
             } catch (error) {
-              errback(error);
+              errback(error as any);
             }
           }
         );
@@ -441,10 +547,10 @@ const Meeting = () => {
     });
   };
 
-  const createRecvTransport = async () => {
+  const createRecvTransport = async (): Promise<Transport> => {
     console.log("Creating recv transport...");
     return new Promise((resolve, reject) => {
-      emit("create-webrtc-transport", { direction: "recv" }, async (data) => {
+      emit("create-webrtc-transport", { direction: "recv" }, async (data: TransportData) => {
         if (data.error) {
           console.error("Failed to create recv transport:", data.error);
           reject(data.error);
@@ -452,7 +558,7 @@ const Meeting = () => {
         }
 
         console.log("Recv transport created:", data.id);
-        const transport = deviceRef.current.createRecvTransport(data);
+        const transport = deviceRef.current!.createRecvTransport(data);
         consumerTransportRef.current = transport;
 
         transport.on("connectionstatechange", (state) => {
@@ -467,7 +573,7 @@ const Meeting = () => {
                 transportId: transport.id,
                 dtlsParameters,
               },
-              (response) => {
+              (response: { error?: string }) => {
                 if (response.error) {
                   console.error(
                     "Failed to connect recv transport:",
@@ -481,7 +587,7 @@ const Meeting = () => {
               }
             );
           } catch (error) {
-            errback(error);
+            errback(error as any);
           }
         });
 
@@ -490,7 +596,7 @@ const Meeting = () => {
     });
   };
 
-  const consume = async (producerId, socketId, appData = {}) => {
+  const consume = async (producerId: string, socketId: string, appData: Record<string, any> = {}): Promise<void> => {
     console.log(
       `Starting consume for producer ${producerId} from ${socketId}`,
       appData
@@ -506,16 +612,16 @@ const Meeting = () => {
         "consume",
         {
           producerId,
-          rtpCapabilities: deviceRef.current.rtpCapabilities,
+          rtpCapabilities: deviceRef.current!.rtpCapabilities,
         },
-        async (response) => {
+        async (response: ConsumeResponse) => {
           if (response.error) {
             console.error("Failed to consume:", response.error);
             return;
           }
 
           console.log("Consuming:", response);
-          const consumer = await consumerTransportRef.current.consume({
+          const consumer = await consumerTransportRef.current!.consume({
             id: response.id,
             producerId: response.producerId,
             kind: response.kind,
@@ -525,13 +631,13 @@ const Meeting = () => {
           if (!consumersRef.current.has(socketId)) {
             consumersRef.current.set(socketId, new Map());
           }
-          consumersRef.current.get(socketId).set(consumer.id, consumer);
+          consumersRef.current.get(socketId)!.set(consumer.id, consumer);
 
           console.log("Resuming consumer:", consumer.id);
           emit(
             "resume-consumer",
             { consumerId: consumer.id },
-            (resumeResponse) => {
+            (resumeResponse: ResumeResponse) => {
               if (resumeResponse?.error) {
                 console.error(
                   "Failed to resume consumer:",
@@ -553,7 +659,7 @@ const Meeting = () => {
     }
   };
 
-  const addTrackToRemoteStream = (socketId, track, mediaType = "camera") => {
+  const addTrackToRemoteStream = (socketId: string, track: MediaStreamTrack, mediaType: string = "camera"): void => {
     console.log(`Adding ${track.kind} track (${mediaType}) for peer:`, socketId);
 
     const isScreenShare = mediaType === "screen" || mediaType === "screen-audio";
@@ -584,7 +690,7 @@ const Meeting = () => {
     }
   };
 
-  const removeRemoteVideo = (socketId) => {
+  const removeRemoteVideo = (socketId: string): void => {
     console.log("Removing remote video for:", socketId);
 
     const consumers = consumersRef.current.get(socketId);
@@ -613,7 +719,7 @@ const Meeting = () => {
     });
   };
 
-  const sendMessage = (e) => {
+  const sendMessage = (e: FormEvent<Element>): void => {
     e.preventDefault();
     if (messageInput.trim() && connected) {
       emit("send-chat-message", {
@@ -625,7 +731,7 @@ const Meeting = () => {
     }
   };
 
-  const savePreferences = () => {
+  const savePreferences = (): void => {
     if (displayName.trim()) {
       setUsername(displayName);
       localStorage.setItem("displayName", displayName);
@@ -640,7 +746,7 @@ const Meeting = () => {
     setShowSettings(false);
   };
 
-  const toggleAudio = () => {
+  const toggleAudio = (): void => {
     if (!myStreamRef.current) return;
 
     const audioTrack = myStreamRef.current.getAudioTracks()[0];
@@ -657,7 +763,7 @@ const Meeting = () => {
     }
   };
 
-  const toggleVideo = () => {
+  const toggleVideo = (): void => {
     if (!myStreamRef.current) return;
 
     const videoTrack = myStreamRef.current.getVideoTracks()[0];
@@ -674,7 +780,7 @@ const Meeting = () => {
     }
   };
 
-  const startScreenShare = async () => {
+  const startScreenShare = async (): Promise<void> => {
     try {
       console.log("Starting screen share...");
 
@@ -738,7 +844,7 @@ const Meeting = () => {
     }
   };
 
-  const stopScreenShare = () => {
+  const stopScreenShare = (): void => {
     console.log("Stopping screen share...");
 
     if (screenStreamRef.current) {
@@ -766,7 +872,7 @@ const Meeting = () => {
     console.log("Screen share stopped");
   };
 
-  const toggleScreenShare = () => {
+  const toggleScreenShare = (): void => {
     if (isScreenSharing) {
       stopScreenShare();
     } else {

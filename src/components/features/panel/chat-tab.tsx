@@ -10,7 +10,7 @@ interface Message {
   message: string;
   timestamp: string;
   socketId: string;
-  isSystem?: boolean;
+  isSystem: boolean;
 }
 
 interface ChatTabProps {
@@ -46,7 +46,7 @@ const ChatTab = ({
                 time={new Date(msg.timestamp).toLocaleTimeString()}
                 message={msg.message}
                 originalLangCode={msg.isSystem ? "SYSTEM" : "EN"}
-                isSystem={msg.isSystem}
+       
               />
             ))
           )}

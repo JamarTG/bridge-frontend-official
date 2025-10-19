@@ -145,6 +145,8 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
     return () => window.removeEventListener('resize', calculateOptimalCols);
   }, [videoTileData.length]);
 
+  
+
   const aspectRatio = "16/9";
 
   return (

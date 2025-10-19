@@ -2,12 +2,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useScrollToBottom } from '@/hooks/useScrollToBottom';
 import PanelLayout from './layout';
 
-interface Transcription {
+export interface Transcription {
   socketId: string;
   username: string;
   transcript: string;
   isFinal: boolean;
-  timestamp: number;
+  timestamp: string;
   sourceLanguage?: string;
   translatedText?: string | null;
 }

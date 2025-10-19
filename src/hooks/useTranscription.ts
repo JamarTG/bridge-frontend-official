@@ -1,5 +1,6 @@
+import type { Transcription } from "@/components/features/panel/transcript-tab";
 import { useState, useEffect, useRef } from "react";
-
+import type { Socket } from "socket.io-client";
 // Map simple language codes to Google Cloud Speech language codes
 const languageCodeMap = {
   'en': 'en-US',
@@ -17,14 +18,32 @@ const languageCodeMap = {
 };
 
 
-export const useTranscription = (emit, on, off, connected, roomId, userLanguage = 'en') => {
+
+
+interface TranslationResult { 
+      socketId: string, 
+      timestamp: string, 
+      translatedText: string 
+    }
+
+// Change this line in useTranscription.ts:
+export const useTranscription = (
+  emit: any, 
+  on: any, 
+  off: any, 
+  connected: boolean, 
+  roomId: string, 
+  userLanguage = 'en'
+)  => {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [transcriptions, setTranscriptions] = useState([]);
-  const audioContextRef = useRef(null);
-  const processorRef = useRef(null);
-  const streamRef = useRef(null);
-  const isProcessingRef = useRef(false);
+  const [transcriptions, setTranscriptions] = useState<Transcription[]>([] as Transcription[]);
+  const audioContextRef = useRef<AudioContext | null>(null);
+const processorRef = useRef<ScriptProcessorNode | null>(null);
+
+const streamRef = useRef<MediaStream | null>(null);
+const isProcessingRef = useRef<boolean>(false);
+
 
   useEffect(() => {
     if (!connected) return;
@@ -36,7 +55,7 @@ export const useTranscription = (emit, on, off, connected, roomId, userLanguage 
       isFinal, 
       timestamp,
       sourceLanguage
-    }) => {
+    }: Transcription) => {
       console.log('📝 Transcription result:', { socketId, username, transcript, isFinal, sourceLanguage });
       
       setTranscriptions(prev => {
@@ -71,7 +90,7 @@ export const useTranscription = (emit, on, off, connected, roomId, userLanguage 
       socketId, 
       timestamp, 
       translatedText 
-    }) => {
+    }: TranslationResult) => {
       console.log('🌐 Translation complete received:', { socketId, timestamp, translatedText });
       
       setTranscriptions(prev => 
@@ -85,12 +104,12 @@ export const useTranscription = (emit, on, off, connected, roomId, userLanguage 
       );
     };
 
-    const handleTranscriptionError = ({ error }) => {
+    const handleTranscriptionError = ({ error } : any) => {
       console.error('Transcription error:', error);
       alert('Transcription error: ' + error);
     };
 
-    const handleSpeakingStatus = ({ isSpeaking: speaking }) => {
+    const handleSpeakingStatus = ({ isSpeaking: speaking } : {isSpeaking: boolean}) => {
       setIsSpeaking(speaking);
     };
 
@@ -118,7 +137,7 @@ export const useTranscription = (emit, on, off, connected, roomId, userLanguage 
       streamRef.current = stream;
       console.log('✅ Got audio stream:', stream.getAudioTracks()[0].label);
 
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+ const audioContext = new ((window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext)();
       audioContextRef.current = audioContext;
       console.log('✅ AudioContext created with sample rate:', audioContext.sampleRate);
 
@@ -169,7 +188,7 @@ export const useTranscription = (emit, on, off, connected, roomId, userLanguage 
       console.log('✅ Audio processor connected to pipeline');
 
       // Use the user's language for transcription
-      const googleLanguageCode = languageCodeMap[userLanguage] || 'en-US';
+      const googleLanguageCode = (languageCodeMap as Record<string, string>)[userLanguage] || 'en-US';
       console.log(`🌍 Starting transcription with language: ${googleLanguageCode} (user preference: ${userLanguage})`);
       
       emit('start-transcription', { 
@@ -182,7 +201,7 @@ export const useTranscription = (emit, on, off, connected, roomId, userLanguage 
       console.error('❌ Error starting transcription:', error);
       setIsTranscribing(false);
       isProcessingRef.current = false;
-      alert('Failed to start transcription: ' + error.message);
+      alert((error as any).message || "Failed to start transcription");
     }
   };
 
