@@ -46,7 +46,7 @@ const NavbarLayout = ({ children }: NavbarLayoutProps) => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
-        <div className="flex justify-center items-center gap-1">
+        <div className="flex justify-center items-center gap-1 cursor-pointer">
           <svg
             viewBox="0 0 24 24"
             width={35}

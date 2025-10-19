@@ -17,7 +17,7 @@ interface Message {
 const ChatTab = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
-  const [connected, _setConnected] = useState(true); // toggle based on your app’s connection status
+  const [connected, _setConnected] = useState(true); 
 
   const messagesEndRef = useScrollToBottom([messages]);
 
@@ -42,12 +42,12 @@ const ChatTab = () => {
   };
 
   return (
-    <PanelLayout>
-      <ScrollArea className="flex-1 w-[95%] border rounded-md">
-        <div className="px-8 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
+    <PanelLayout className="flex justify-center items-center w-full">
+      <ScrollArea className="flex-1 w-80 sm:w-[95%] border rounded-md">
+        <div className="h-120 px-4 flex flex-col items-start justify-start space-y-2 pl-2 py-4">
           {messages.length === 0 ? (
-            <div className="text-center w-full py-8 text-muted-foreground text-sm">
-              No messages yet. Start the conversation!
+            <div className="h-full flex justify-center items-center text-center w-full py-8 text-muted-foreground text-sm">
+              <p>No messages yet. Start the conversation!</p>
             </div>
           ) : (
             messages.map((msg, index) => (
