@@ -38,7 +38,7 @@ const Panel: React.FC<PanelProps> = ({ isMobileVersion = false }: { isMobileVers
 
         <div className="flex-1 flex flex-col">
           <TabsContent value="chat" className="flex-1 h-full w-full">
-            <ChatTab />
+            {/* <ChatTab /> */}
           </TabsContent>
           <TabsContent value="ai" className="flex-1 h-full w-full">
             <AITab meetingId={roomId} />
