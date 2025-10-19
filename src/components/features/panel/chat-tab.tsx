@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send } from "lucide-react";
 import MessageItem from "../message-item";
@@ -13,22 +14,32 @@ interface Message {
   isSystem: boolean;
 }
 
-interface ChatTabProps {
-  messages: Message[];
-  messageInput: string;
-  setMessageInput: (value: string) => void;
-  sendMessage: (e: React.FormEvent) => void;
-  connected: boolean;
-}
+const ChatTab = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageInput, setMessageInput] = useState("");
+  const [connected, _setConnected] = useState(true); // toggle based on your app’s connection status
 
-const ChatTab = ({ 
-  messages, 
-  messageInput, 
-  setMessageInput, 
-  sendMessage, 
-  connected 
-}: ChatTabProps) => {
   const messagesEndRef = useScrollToBottom([messages]);
+
+  const sendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = messageInput.trim();
+    if (!text || !connected) return;
+
+    const newMsg: Message = {
+      username: "You",
+      message: text,
+      timestamp: new Date().toISOString(),
+      socketId:
+        (typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? (crypto as any).randomUUID()
+          : Math.random().toString(36).slice(2)) as string,
+      isSystem: false,
+    };
+
+    setMessages((prev) => [...prev, newMsg]);
+    setMessageInput("");
+  };
 
   return (
     <PanelLayout>
@@ -46,7 +57,6 @@ const ChatTab = ({
                 time={new Date(msg.timestamp).toLocaleTimeString()}
                 message={msg.message}
                 originalLangCode={msg.isSystem ? "SYSTEM" : "EN"}
-       
               />
             ))
           )}
@@ -54,9 +64,9 @@ const ChatTab = ({
         </div>
       </ScrollArea>
 
-      <ChatButton 
+      <ChatButton
         Icon={Send}
-        placeholder="Type a message..." 
+        placeholder="Type a message..."
         value={messageInput}
         onChange={(e) => setMessageInput(e.target.value)}
         onSubmit={sendMessage}

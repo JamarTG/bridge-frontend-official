@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { FormEvent, JSX } from "react";
+import type { JSX } from "react";
 import * as mediasoupClient from "mediasoup-client";
 import { Device } from "mediasoup-client";
 import type { Transport, Producer, Consumer } from "mediasoup-client/types";
@@ -144,7 +144,6 @@ const Meeting = (): JSX.Element => {
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([]);
-  const [messageInput, setMessageInput] = useState<string>("");
 
   // User settings
   const [username] = useState<string>(
@@ -740,17 +739,7 @@ const Meeting = (): JSX.Element => {
     });
   };
 
-  const sendMessage = (e: FormEvent<Element>): void => {
-    e.preventDefault();
-    if (messageInput.trim() && connected) {
-      emit("send-chat-message", {
-        roomId: rId,
-        username: displayName || username,
-        message: messageInput.trim(),
-      });
-      setMessageInput("");
-    }
-  };
+ 
 
   // const savePreferences = (): void => {
   //   if (displayName.trim()) {
@@ -936,11 +925,9 @@ const Meeting = (): JSX.Element => {
             <div className="flex-1 flex flex-col">
               <TabsContent value="chat">
                 <ChatTab
-                  messages={messages}
-                  messageInput={messageInput}
-                  setMessageInput={setMessageInput}
-                  sendMessage={sendMessage}
-                  connected={connected}
+              
+                
+              
                 />
               </TabsContent>
               <TabsContent value="ai"><AITab meetingId={rId} /></TabsContent>
