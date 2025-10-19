@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { FormEvent, JSX, RefObject } from "react";
+import type { FormEvent, JSX } from "react";
 import * as mediasoupClient from "mediasoup-client";
 import { Device } from "mediasoup-client";
 import type { Transport, Producer,Consumer} from "mediasoup-client/types";
@@ -467,7 +467,7 @@ console.log('📹 All remote streams:', Array.from(remoteStreamsRef.current.keys
         const transport = deviceRef.current!.createSendTransport(data);
         producerTransportRef.current = transport;
 
-        transport.on("connectionstatechange", (state) => {
+        transport.on("connectionstatechange", (state:any) => {
           console.log(`🔌 SEND transport connection state: ${state}`);
         });
 

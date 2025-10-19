@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 interface User {
   name: string;
-  email: string;
+  // email: string;
 }
 
 
@@ -36,7 +36,7 @@ const NavUser: React.FC<NavUserProps> = ({ user }) => {
             </Avatar>
             <div className="flex flex-col flex-1 text-left">
               <span className="truncate text-base text-gray-700 font-medium">{user.name}</span>
-              <span className="truncate text-xs text-gray-500">{user.email}</span>
+              {/* <span className="truncate text-xs text-gray-500">{user.email}</span> */}
             </div>
           </div>
 
