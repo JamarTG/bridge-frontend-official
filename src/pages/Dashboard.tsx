@@ -16,15 +16,52 @@ const Dashboard = () => {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const generateMeetingLink = () => {
+  const generateMeetingLink = async () => {
+  console.log("Generating meeting link...");
+    const token = localStorage.getItem("authToken");
+  if (!token) {
+    console.error("No auth token found.");
+    return;
+  }
+  console.log("Auth token found:", token);
+
+  try {
+    const response = await fetch("/api/v1/meetings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Basic ${token}`,
+      },
+      body: JSON.stringify({
+        hostId: 0,
+        shortTitle: "Round Table ",
+        description: "oooooo",
+      }),
+    });
+
+    const result = await response.json();
+    console.log("Create meeting response:", result);
+
+    if (!response.ok) {
+      console.error("Create meeting error:", result);
+      return;
+    }
+
     const newMeeting: Meeting = {
       id: 1,
       title: "Active Meeting",
-      inviteLink: `${window.location.origin}/room/${crypto.randomUUID()}`,
+      inviteLink: `${window.location.origin}/room/${result.meetingUuid}`,
       createdAt: new Date(),
     };
     setMeeting(newMeeting);
-  };
+  } catch (error) {
+    console.error("Create meeting error:", error);
+  }
+}
+
+
+
+    
 
   const copyLink = (link: string) => {
     navigator.clipboard.writeText(link);

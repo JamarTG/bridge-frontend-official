@@ -151,10 +151,10 @@ const DynamicVideoGrid: React.FC<VideoGridProps> = ({ videoTileData }) => {
   return (
     <div
       ref={containerRef}
-      className="relative gap-1 w-full p-5 flex flex-wrap items-center justify-center place-items-center transition-all ease-in-out duration-200"
+      className="flex justify-center items-center relative gap-1 w-full p-5  flex-wrap place-items-center transition-all ease-in-out duration-200"
       style={{
         maxWidth: "100vw",
-        height: "calc(100vh - 6rem)",
+        height: "calc(100vh - 15rem)",
         alignContent: "center",
       }}
     >

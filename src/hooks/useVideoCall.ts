@@ -25,7 +25,7 @@ export interface RemotePeer {
 
 export function useVideoCall({
   roomId,
-  socket,
+  // socket,
   connected,
   emit,
   on,
@@ -126,7 +126,7 @@ export function useVideoCall({
 
     const handlePeerMediaStatus = ({
       socketId,
-      username,
+      // username,
       isAudioMuted,
       isVideoMuted,
     }: any) => {
@@ -144,6 +144,7 @@ export function useVideoCall({
 
     const handleExistingPeerStatuses = (statuses: any[]) => {
       statuses.forEach(({ socketId, username, isAudioMuted, isVideoMuted }) => {
+        username
         setRemotePeers(prev => {
           const newPeers = new Map(prev);
           const peer = newPeers.get(socketId);
