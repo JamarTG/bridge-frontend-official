@@ -5,11 +5,15 @@ interface DocumentProps {
   title: string;
   type: string;
   size: string;
+  onDownload?: () => void;
 }
 
-const Document: React.FC<DocumentProps> = ({ title, type, size }) => {
+const Document: React.FC<DocumentProps> = ({ title, type, size, onDownload }) => {
   return (
-    <Card className="min-w-96 p-3 hover:bg-accent/5 cursor-pointer transition-colors">
+    <Card 
+      className="min-w-96 p-3 hover:bg-accent/5 cursor-pointer transition-colors"
+      onClick={onDownload}
+    >
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0">
           <FileText className="w-5 h-5" />

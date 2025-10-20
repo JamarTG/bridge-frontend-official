@@ -1,26 +1,51 @@
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Signup({ prefillEmail = "", prefillName = "" }) {
   const [name, setName] = useState(prefillName);
   const [email, setEmail] = useState(prefillEmail);
-  const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [language, setLanguage] = useState("en"); // Default to English
 
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    console.log({ name, email, username, phone });
-    // TODO: Send to backend
-    navigate("/");
+    console.log({ name, email, password });
+    const response = await fetch("/api/profiles", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        firstName: name.split(" ")[0] || "",
+        lastName: name.split(" ")[1] || "",
+
+        password: password,
+        languagePreference: language,
+        //supabaseUserId: UUID.v4().toString(),
+        // Assuming password and supabaseUserId are handled elsewhere or not needed for this specific signup
+      }),
+    });
+
+    if (response.ok) {
+      console.log("User registered successfully!");
+      navigate("/login");
+    } else {
+      alert("Failed to register user:");
+    }
+
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md p-8 space-y-6 rounded-2xl border bg-card shadow-sm">
+        <Logo />
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
           <p className="text-sm text-muted-foreground">
@@ -49,24 +74,34 @@ export default function Signup({ prefillEmail = "", prefillName = "" }) {
             />
           </div>
 
+
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="password">Password</Label>
             <Input
-              id="username"
-              value={username}
-              placeholder="Choose a username"
-              onChange={(e) => setUsername(e.target.value)}
+              id="password"
+              type="password"
+              value={password}
+              placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              value={phone}
-              placeholder="Enter your phone number"
-              onChange={(e) => setPhone(e.target.value)}
-            />
+            <Label htmlFor="language">Preferred Language</Label>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+              <SelectGroup>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="zh">Chinese (Mandarin)</SelectItem>
+                <SelectItem value="hi">Hindi</SelectItem>
+                <SelectItem value="es">Spanish</SelectItem>
+                <SelectItem value="ar">Arabic</SelectItem>
+              </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button onClick={handleSignup} className="w-full">

@@ -1,22 +1,48 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { type LucideProps } from 'lucide-react';
+import { type FormEvent, type ChangeEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { type LucideIcon } from "lucide-react";
 
 interface ChatButtonProps {
-  Icon: React.ComponentType<LucideProps>;
-  placeholder?: string;
-};
+  placeholder: string;
+  Icon: LucideIcon;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSubmit?: (e: FormEvent) => void;
+  disabled?: boolean;
+}
 
-const ChatButton: React.FC<ChatButtonProps> = ({ Icon, placeholder }) => {
+const ChatButton = ({ 
+  placeholder, 
+  Icon, 
+  value = "",
+  onChange,
+  onSubmit,
+  disabled = false
+}: ChatButtonProps) => {
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (onSubmit) {
+      onSubmit(e);
+    }
+  };
+
   return (
-    <div className="py-2 w-[95%]">
-      <div className="flex gap-2">
-        <Input placeholder={placeholder} className="flex-1" />
-        <Button variant="outline" className="cursor-pointer">
-          <Icon className="w-4 h-4" />
+    <form onSubmit={handleSubmit} className="py-2 w-full sm:w-[95%] border-border">
+      <div className="flex items-center gap-2">
+        <Input
+          type="text"
+          placeholder={placeholder}
+          className="flex-1"
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+        />
+        <Button type="submit" size="icon" disabled={disabled}>
+          <Icon className="h-4 w-4" />
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 
